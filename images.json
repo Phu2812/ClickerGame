@@ -1,0 +1,26 @@
+[
+  {
+    "fileName": "album_forest.png",
+    "displayName": "Rừng cổ đại",
+    "rarity": 1,
+    "cost": 100
+  },
+  {
+    "fileName": "album_dragon.png",
+    "displayName": "Hang rồng",
+    "rarity": 2,
+    "cost": 500
+  },
+  {
+    "fileName": "album_city.png",
+    "displayName": "Thành phố hư ảo",
+    "rarity": 4,
+    "cost": 2000
+  },
+  {
+    "fileName": "album_magic.png",
+    "displayName": "Phép thuật",
+    "rarity": 3,
+    "cost": 1000
+  }
+]
