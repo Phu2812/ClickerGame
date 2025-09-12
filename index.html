@@ -169,9 +169,87 @@
             color: #ff0000;
             text-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 0 0 25px rgba(255, 0, 0, 0.6);
         }
+        
+        /* --- START: Added styles for UI/UX improvements --- */
+        #notification-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .notification {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            min-width: 250px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slide-in 0.5s forwards, slide-out 0.5s 2.5s forwards;
+        }
+        .notification.info { background-color: #2563eb; }
+        .notification.success { background-color: #16a34a; }
+        .notification.error { background-color: #dc2626; }
+        
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slide-out {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        .screen-effect-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .screen-effect-overlay.firestorm {
+            background: radial-gradient(circle, rgba(255,100,0,0.5) 0%, rgba(255,0,0,0) 70%);
+            animation: firestorm-pulse 0.5s 2;
+        }
+        @keyframes firestorm-pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.8; } }
+
+        .screen-effect-overlay.gold-rush {
+            background-color: rgba(255, 215, 0, 0.1);
+        }
+        
+        .screen-effect-overlay.rage-mode {
+            background-color: rgba(255, 0, 0, 0.1);
+            animation: rage-shake 0.1s infinite;
+        }
+        @keyframes rage-shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, 1px); } }
+
+        #particle-container {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .particle {
+            position: absolute;
+            animation: fall 3s linear forwards;
+            font-size: 1.5rem;
+        }
+        @keyframes fall { from { top: -10%; opacity: 1; } to { top: 110%; opacity: 0; } }
+        /* --- END: Added styles for UI/UX improvements --- */
     </style>
 </head>
 <body class="bg-[#0d1117] text-white">
+    <div id="notification-container"></div>
+    <div id="screen-overlay" class="screen-effect-overlay"></div>
+    <div id="particle-container"></div>
     <div id="game-screen" class="relative w-screen h-screen flex flex-col items-center justify-between transition-opacity duration-500">
         <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-start text-sm z-50">
             <div class="flex flex-col items-start space-y-1">
@@ -216,11 +294,11 @@
                 <div id="click-upgrades" class="sub-tab-content grid grid-cols-1 md:grid-cols-2 gap-4 p-4"></div>
                 <div id="dps-upgrades" class="sub-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-4"></div>
                 <div id="economy-upgrades" class="sub-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-4"></div>
-                <div id="skill-upgrades" class="sub-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-4"></div>
+                <div id="skill-upgrades" class="sub-tab-content hidden grid grid-cols-1 gap-4 p-4"></div>
             </div>
 
             <div id="gem-shop-tab" class="tab-content hidden scroll-container h-80 overflow-y-auto p-4">
-                <div id="gem-upgrades-container" class="space-y-4"></div>
+                <div id="gem-upgrades-container" class="grid grid-cols-1 gap-4"></div>
             </div>
             
             <div id="album-tab" class="tab-content hidden scroll-container h-80 overflow-y-auto p-4">
@@ -308,11 +386,11 @@
                 { name: "Cosmic Devourer", icon: "fa-solid fa-galaxy", biome: "Vùng hư vô" },
             ],
             upgrades: {
-                click: [
-                    { id: 'power-click', name: "Power Click", description: "Tăng sát thương mỗi click", cost: 10, effect: 1, type: "click", maxLevel: Infinity },
-                    { id: 'critical-chance', name: "Critical Chance", description: "Tăng % đánh chí mạng", cost: 25, effect: 0.01, type: "click", maxLevel: 100 },
-                    { id: 'critical-damage', name: "Critical Damage", description: "Tăng sát thương chí mạng", cost: 50, effect: 0.1, type: "click", maxLevel: Infinity },
-                    { id: 'double-tap', name: "Double Tap", description: "Tỉ lệ ra 2 đòn đánh", cost: 75, effect: 0.05, type: "click", maxLevel: 20 },
+                 click: [
+                    { id: 'power-click', name: "Power Click", description: "Tăng sát thương mỗi click", cost: 10, effect: 1, type: "click", maxLevel: Infinity, icon: "fa-solid fa-hand-pointer" },
+                    { id: 'critical-chance', name: "Critical Chance", description: "Tăng % đánh chí mạng", cost: 25, effect: 0.01, type: "click", maxLevel: 100, icon: "fa-solid fa-crosshairs" },
+                    { id: 'critical-damage', name: "Critical Damage", description: "Tăng sát thương chí mạng", cost: 50, effect: 0.1, type: "click", maxLevel: Infinity, icon: "fa-solid fa-bolt" },
+                    { id: 'double-tap', name: "Double Tap", description: "Tỉ lệ ra 2 đòn đánh", cost: 75, effect: 0.05, type: "click", maxLevel: 20, icon: "fa-solid fa-2" },
                     { 
                         id: 'elemental-click', 
                         name: "Elemental Click", 
@@ -327,31 +405,32 @@
                         poisonTickInterval: 1000,
                         poisonDuration: 5,
                         type: "click", 
-                        maxLevel: 5 
+                        maxLevel: 5,
+                        icon: "fa-solid fa-wand-magic-sparkles"
                     },
                 ],
                 dps: [
-                    { id: 'swordsman', name: "Kiếm sĩ", description: "Sát thương ổn định", cost: 15, effect: 1, type: "dps", baseDamage: 0.5, attackSpeed: 1000, icon: "⚔️", color: "damage-number-swordsman", maxLevel: Infinity },
-                    { id: 'mage', name: "Pháp sư", description: "Sát thương phép, DOT", cost: 30, effect: 1.5, type: "dps", baseDamage: 0.4, attackSpeed: 1500, dotChance: 0.2, dotDamageRatio: 0.3, dotDuration: 5, icon: "🧙‍♂️", color: "damage-number-mage", maxLevel: Infinity },
-                    { id: 'archer', name: "Cung thủ", description: "Tốc độ nhanh, damage nhỏ", cost: 25, effect: 0.8, type: "dps", baseDamage: 0.3, attackSpeed: 500, icon: "🏹", color: "damage-number-archer", maxLevel: Infinity },
-                    { id: 'treasure-hunter', name: "Thợ săn kho báu", description: "+gold, damage nhẹ", cost: 50, effect: 1, type: "dps", baseDamage: 0.2, attackSpeed: 800, goldChance: 0.1, goldAmount: 5, icon: "🗡️", color: "damage-number-hunter", maxLevel: Infinity },
-                    { id: 'pet', name: "Pet", description: "Gây phụ damage, buff hỗ trợ", cost: 100, effect: 2, type: "dps", baseDamage: 0.8, attackSpeed: 2000, buff: { damage: 0.2, attackSpeed: 0.1 }, icon: "🐲", color: "damage-number-pet", maxLevel: 5 },
+                    { id: 'swordsman', name: "Kiếm sĩ", description: "Sát thương ổn định", cost: 15, effect: 1, type: "dps", baseDamage: 0.5, attackSpeed: 1000, icon: "⚔️", color: "damage-number-swordsman", maxLevel: Infinity, upgradeIcon: "fa-solid fa-shield-halved" },
+                    { id: 'mage', name: "Pháp sư", description: "Sát thương phép, DOT", cost: 30, effect: 1.5, type: "dps", baseDamage: 0.4, attackSpeed: 1500, dotChance: 0.2, dotDamageRatio: 0.3, dotDuration: 5, icon: "🧙‍♂️", color: "damage-number-mage", maxLevel: Infinity, upgradeIcon: "fa-solid fa-hat-wizard" },
+                    { id: 'archer', name: "Cung thủ", description: "Tốc độ nhanh, damage nhỏ", cost: 25, effect: 0.8, type: "dps", baseDamage: 0.3, attackSpeed: 500, icon: "🏹", color: "damage-number-archer", maxLevel: Infinity, upgradeIcon: "fa-solid fa-bullseye" },
+                    { id: 'treasure-hunter', name: "Thợ săn kho báu", description: "+gold, damage nhẹ", cost: 50, effect: 1, type: "dps", baseDamage: 0.2, attackSpeed: 800, goldChance: 0.1, goldAmount: 5, icon: "🗡️", color: "damage-number-hunter", maxLevel: Infinity, upgradeIcon: "fa-solid fa-sack-dollar" },
+                    { id: 'pet', name: "Pet", description: "Gây phụ damage, buff hỗ trợ", cost: 100, effect: 2, type: "dps", baseDamage: 0.8, attackSpeed: 2000, buff: { damage: 0.2, attackSpeed: 0.1 }, icon: "🐲", color: "damage-number-pet", maxLevel: 5, upgradeIcon: "fa-solid fa-dragon" },
                 ],
                 economy: [
-                    { id: 'gold-multiplier', name: "Gold Multiplier", description: "Tăng % vàng rơi", cost: 20, effect: 0.05, type: "economy", maxLevel: 10 },
-                    { id: 'boss-loot', name: "Boss Loot", description: "Thêm rơi gem", cost: 200, effect: 1, type: "economy", maxLevel: Infinity },
-                    { id: 'treasure-hunter-eco', name: "Treasure Hunter", description: "Tăng rơi vàng hiếm", cost: 150, effect: 1, type: "economy", maxLevel: Infinity },
+                    { id: 'gold-multiplier', name: "Gold Multiplier", description: "Tăng % vàng rơi", cost: 20, effect: 0.05, type: "economy", maxLevel: 10, icon: "fa-solid fa-percent" },
+                    { id: 'boss-loot', name: "Boss Loot", description: "Thêm rơi gem", cost: 200, effect: 1, type: "economy", maxLevel: Infinity, icon: "fa-solid fa-gem" },
+                    { id: 'treasure-hunter-eco', name: "Treasure Hunter", description: "Tăng rơi vàng hiếm", cost: 150, effect: 1, type: "economy", maxLevel: Infinity, icon: "fa-solid fa-treasure-chest" },
                 ],
                 skill: [
-                    { id: 'firestorm', name: "Firestorm", description: "Sát thương toàn màn hình", cost: 500, effect: 1, type: "skill", cooldown: 60, duration: 0, maxLevel: Infinity },
-                    { id: 'gold-rush', name: "Gold Rush", description: "Vàng ×2 trong 10s", cost: 1000, effect: 2, type: "skill", cooldown: 120, duration: 10, maxLevel: Infinity },
-                    { id: 'rage-mode', name: "Rage Mode", description: "Click ×5 trong 15s", cost: 2000, effect: 5, type: "skill", cooldown: 90, duration: 15, maxLevel: Infinity },
+                    { id: 'firestorm', name: "Firestorm", description: "Sát thương toàn màn hình", cost: 500, effect: 1, type: "skill", cooldown: 60, duration: 0, maxLevel: Infinity, icon: "fa-solid fa-fire" },
+                    { id: 'gold-rush', name: "Gold Rush", description: "Vàng ×2 trong 10s", cost: 1000, effect: 2, type: "skill", cooldown: 120, duration: 10, maxLevel: Infinity, icon: "fa-solid fa-coins" },
+                    { id: 'rage-mode', name: "Rage Mode", description: "Click ×5 trong 15s", cost: 2000, effect: 5, type: "skill", cooldown: 90, duration: 15, maxLevel: Infinity, icon: "fa-solid fa-burst" },
                 ]
             },
-            gemUpgrades: [
-                { id: 'gem-click-damage', name: "Click Damage Boost", description: "Tăng % tổng sát thương click", cost: 1, effect: 0.05, type: "gem" },
-                { id: 'gem-dps-damage', name: "DPS Damage Boost", description: "Tăng % tổng sát thương DPS", cost: 1, effect: 0.1, type: "gem" },
-                { id: 'gem-skill-damage', name: "Skill Damage Boost", description: "Tăng % tổng sát thương kỹ năng", cost: 1, effect: 0.05, type: "gem" },
+             gemUpgrades: [
+                { id: 'gem-click-damage', name: "Click Damage Boost", description: "Tăng % tổng sát thương click", cost: 1, effect: 0.05, type: "gem", icon: "fa-solid fa-hand-pointer" },
+                { id: 'gem-dps-damage', name: "DPS Damage Boost", description: "Tăng % tổng sát thương DPS", cost: 1, effect: 0.1, type: "gem", icon: "fa-solid fa-users" },
+                { id: 'gem-skill-damage', name: "Skill Damage Boost", description: "Tăng % tổng sát thương kỹ năng", cost: 1, effect: 0.05, type: "gem", icon: "fa-solid fa-star" },
             ],
             albums: [] // This will be populated from images.json
         };
@@ -378,6 +457,11 @@
         const skillUpgradesContainer = document.getElementById('skill-upgrades');
         const albumGrid = document.getElementById('album-grid');
         const gemUpgradesContainer = document.getElementById('gem-upgrades-container');
+        // START: Added DOM elements for effects
+        const screenOverlay = document.getElementById('screen-overlay');
+        const particleContainer = document.getElementById('particle-container');
+        let activeParticleInterval = null;
+        // END: Added DOM elements for effects
 
         let isPaused = false;
         let dpsIntervals = {};
@@ -658,7 +742,7 @@
 
             const currentLevel = gameState.upgrades[id]?.level || 0;
             if (currentLevel >= upgradeData.maxLevel) {
-                alert("Nâng cấp này đã đạt cấp độ tối đa!");
+                showNotification("Nâng cấp này đã đạt cấp độ tối đa!", "info");
                 return;
             }
             const currentCost = Math.round(upgradeData.cost * Math.pow(1.15, currentLevel));
@@ -676,7 +760,7 @@
                 startDpsTimers(); // Restart timers to apply new upgrades
                 saveGame();
             } else {
-                alert("Không đủ vàng!");
+                showNotification("Không đủ vàng!", "error");
             }
         }
 
@@ -699,7 +783,7 @@
                 renderGemUpgrades();
                 saveGame();
             } else {
-                alert("Không đủ Gem!");
+                showNotification("Không đủ Gem!", "error");
             }
         }
         
@@ -718,7 +802,7 @@
                 renderAlbums();
                 saveGame();
             } else {
-                alert("Không đủ vàng!");
+                showNotification("Không đủ vàng!", "error");
             }
         }
 
@@ -739,13 +823,39 @@
                 gameState.currentMonsterHP -= Math.round(totalDamage);
                 displayDamageNumber(Math.random() * (monsterContainerRect.width - 40) + monsterContainerRect.left + 20, Math.random() * (monsterContainerRect.height - 40) + monsterContainerRect.top + 20, Math.round(totalDamage), 'skill');
                 animateMonsterHit();
+                
+                // Firestorm visual effect
+                screenOverlay.className = 'screen-effect-overlay firestorm';
+                screenOverlay.style.opacity = 1;
+                setTimeout(() => { screenOverlay.style.opacity = 0; }, 1000);
+
                 if (gameState.currentMonsterHP <= 0) defeatMonster();
             } else if (skillData.duration > 0) {
                 let effectMultiplier = skillData.effect;
                 // Gold Rush and Rage Mode are not affected by gem skill damage boost
                 gameState.activeSkills[id] = effectMultiplier;
+
+                // Activate visual effects for duration skills
+                if (id === 'gold-rush') {
+                    screenOverlay.className = 'screen-effect-overlay gold-rush';
+                    screenOverlay.style.opacity = 1;
+                    if(activeParticleInterval) clearInterval(activeParticleInterval);
+                    activeParticleInterval = setInterval(() => createParticle('💰'), 200);
+                } else if (id === 'rage-mode') {
+                    screenOverlay.className = 'screen-effect-overlay rage-mode';
+                    screenOverlay.style.opacity = 1;
+                }
+
                 setTimeout(() => {
                     delete gameState.activeSkills[id];
+                    // Deactivate visual effects
+                    if (id === 'gold-rush') {
+                        if(activeParticleInterval) clearInterval(activeParticleInterval);
+                        activeParticleInterval = null;
+                        particleContainer.innerHTML = '';
+                    }
+                    screenOverlay.style.opacity = 0;
+
                 }, skillData.duration * 1000);
             }
 
@@ -809,7 +919,7 @@
             renderAlbums();
         }
         
-        function renderUpgrades() {
+         function renderUpgrades() {
             const containers = {
                 'click': clickUpgradesContainer,
                 'dps': dpsUpgradesContainer,
@@ -944,49 +1054,58 @@
                     }
 
                     if (type === 'skill') {
+                        // START: Reworked Skill Tab UI
                         const cooldownLeft = gameState.skillCooldowns[upgrade.id] || 0;
                         const isDisabled = cooldownLeft > 0 || currentLevel === 0;
                         const buttonSkillClass = isDisabled ? 'bg-gray-700 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500';
 
                         let skillHtml = `
-                            <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between relative">
-                                <div>
+                            <div class="bg-gray-800 p-4 rounded-lg flex flex-col md:flex-row items-center gap-4 relative">
+                                <div class="flex-shrink-0 text-indigo-400 text-4xl w-16 text-center">
+                                    <i class="${upgrade.icon}"></i>
+                                </div>
+                                <div class="flex-grow text-center md:text-left">
                                     <h3 class="font-bold text-lg text-indigo-400">${upgrade.name}</h3>
                                     <p class="text-sm text-gray-400">${description}</p>
-                                    <p class="text-sm mt-2">${levelDisplay}</p>
+                                    <p class="text-sm mt-1">${levelDisplay}</p>
                                 </div>
-                                <div class="mt-4 flex items-center justify-between">
-                                    ${currentLevel > 0 ? '' : `<span class="text-yellow-400 text-sm">💰 ${currentCost} Vàng</span>`}
+                                <div class="flex-shrink-0 w-full md:w-48">
                                     ${currentLevel > 0 ? `
-                                        <button class="p-2 rounded-md ${buttonSkillClass} flex-1" onclick="useSkill('${upgrade.id}')" ${isDisabled ? 'disabled' : ''}>
-                                            ${isDisabled ? `CD: ${cooldownLeft}s` : 'Sử dụng'}
+                                        <button class="w-full p-3 rounded-md ${buttonSkillClass} font-bold" onclick="useSkill('${upgrade.id}')" ${isDisabled ? 'disabled' : ''}>
+                                            ${isDisabled ? `Hồi chiêu: ${cooldownLeft}s` : 'Sử dụng'}
                                         </button>`
-                                    : ''}
-                                    ${currentLevel === 0 ? `<button class="p-2 rounded-md ${buttonClass} flex-1" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Mở khóa</button>` : ''}
+                                    : `
+                                        <button class="w-full p-3 rounded-md ${buttonClass} font-bold" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>
+                                            Mở khóa (💰 ${currentCost})
+                                        </button>
+                                    `}
                                 </div>
                                 ${currentLevel > 0 && cooldownLeft > 0 ? `
-                                <div class="absolute bottom-0 left-0 h-1 bg-gray-600 rounded-b-md w-full">
-                                    <div class="skill-cooldown-bar h-full" style="width: ${(upgrade.cooldown - cooldownLeft) / upgrade.cooldown * 100}%;"></div>
+                                <div class="absolute bottom-0 left-0 h-1 bg-indigo-900 rounded-b-lg w-full">
+                                    <div class="bg-indigo-400 h-full rounded-b-lg" style="width: ${((upgrade.cooldown - cooldownLeft) / upgrade.cooldown) * 100}%;"></div>
                                 </div>` : ''}
-                            </div>
-                        `;
+                            </div>`;
                         containers[type].innerHTML += skillHtml;
+                        // END: Reworked Skill Tab UI
                     } else {
+                        // START: Added icon to upgrade cards
+                        const iconHtml = upgrade.upgradeIcon ? `<i class="${upgrade.upgradeIcon} mr-2"></i>` : (upgrade.icon ? `<i class="${upgrade.icon} mr-2"></i>` : '');
                         containers[type].innerHTML += `
                             <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between">
                                 <div>
-                                    <h3 class="font-bold text-lg text-indigo-400">${upgrade.name}</h3>
-                                    <p class="text-sm text-gray-400">${description}</p>
+                                    <h3 class="font-bold text-lg text-indigo-400">${iconHtml}${upgrade.name}</h3>
+                                    <p class="text-sm text-gray-400 mt-1">${description}</p>
                                     ${extraInfo}
                                     <p class="text-sm mt-2">${levelDisplay}</p>
                                     <p class="text-sm text-yellow-300">${nextLevelInfo}</p>
                                 </div>
                                 <div class="mt-4 flex items-center justify-between">
-                                    <span class="text-yellow-400 text-sm">${isMaxLevel ? 'Đã tối đa' : `💰 ${currentCost} Vàng`}</span>
+                                    <span class="text-yellow-400 text-sm font-bold">${isMaxLevel ? 'Đã tối đa' : `💰 ${currentCost}`}</span>
                                     <button class="p-2 rounded-md ${buttonClass}" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Nâng cấp</button>
                                 </div>
                             </div>
                         `;
+                        // END: Added icon to upgrade cards
                     }
                 });
             }
@@ -1001,26 +1120,30 @@
                 const buttonClass = canAfford ? 'bg-cyan-600 hover:bg-cyan-500' : 'bg-gray-700 cursor-not-allowed';
                 
                 let bonus = upgrade.effect * 100;
-                const currentBonus = currentLevel * bonus;
-                const nextBonus = (currentLevel + 1) * bonus;
-                let description = upgrade.description;
-                let levelDisplay = `Cấp: ${currentLevel} | Bonus hiện tại: +${currentBonus}%`;
-                let nextLevelInfo = `Bonus cấp tiếp theo: +${nextBonus}%`;
+                const currentBonus = (currentLevel * bonus).toFixed(1);
+                const nextBonus = ((currentLevel + 1) * bonus).toFixed(1);
 
+                // START: Reworked Gem Shop UI
                 gemUpgradesContainer.innerHTML += `
-                    <div class="bg-gray-700 p-4 rounded-lg flex flex-col justify-between">
-                        <div>
-                            <h3 class="font-bold text-lg text-cyan-400">${upgrade.name}</h3>
-                            <p class="text-sm text-gray-300">${description}</p>
-                            <p class="text-sm mt-2">${levelDisplay}</p>
-                            <p class="text-sm text-cyan-300">${nextLevelInfo}</p>
+                    <div class="bg-gray-800 p-4 rounded-lg flex items-center gap-4">
+                        <div class="text-cyan-400 text-4xl w-16 text-center">
+                            <i class="${upgrade.icon}"></i>
                         </div>
-                        <div class="mt-4 flex items-center justify-between">
-                            <span class="text-cyan-400 text-sm">💎 ${currentCost} Gems</span>
-                            <button class="p-2 rounded-md ${buttonClass}" onclick="buyGemUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Nâng cấp</button>
+                        <div class="flex-grow">
+                            <h3 class="font-bold text-lg text-cyan-300">${upgrade.name}</h3>
+                            <p class="text-sm text-gray-300">${upgrade.description}</p>
+                            <p class="text-sm mt-2">Cấp: ${currentLevel} | <span class="text-cyan-400 font-bold">Bonus: +${currentBonus}%</span></p>
+                            <p class="text-sm text-gray-400">Cấp tiếp theo: +${nextBonus}%</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                             <button class="p-3 rounded-md ${buttonClass} font-bold flex flex-col items-center" onclick="buyGemUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>
+                                <span>Nâng Cấp</span>
+                                <span class="text-xs">💎 ${currentCost}</span>
+                             </button>
                         </div>
                     </div>
                 `;
+                // END: Reworked Gem Shop UI
             });
         }
         
@@ -1152,6 +1275,32 @@
                 damageNumber.remove();
             }, 1000);
         }
+        
+        // START: Added functions for UI/UX
+        function showNotification(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            container.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, duration);
+        }
+
+        function createParticle(content) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.innerHTML = content;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.animationDuration = `${Math.random() * 2 + 3}s`; // 3-5 seconds
+            particleContainer.appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 5000);
+        }
+        // END: Added functions for UI/UX
 
         // --- Timers and Intervals ---
         
@@ -1218,12 +1367,14 @@
             if (skillCooldownInterval) clearInterval(skillCooldownInterval);
             skillCooldownInterval = setInterval(() => {
                 if (!isPaused) {
+                    let needsRender = false;
                     for (const skillId in gameState.skillCooldowns) {
                         if (gameState.skillCooldowns[skillId] > 0) {
                             gameState.skillCooldowns[skillId]--;
+                            needsRender = true;
                         }
                     }
-                    renderUpgrades();
+                    if(needsRender) renderUpgrades();
                 }
             }, 1000);
         }
@@ -1277,10 +1428,10 @@
         function exportSaveData() {
             const data = JSON.stringify(gameState);
             navigator.clipboard.writeText(data).then(() => {
-                alert("Đã sao chép dữ liệu game vào clipboard!");
+                showNotification("Đã sao chép dữ liệu game vào clipboard!", "success");
             }).catch(err => {
                 console.error("Lỗi khi sao chép:", err);
-                alert("Có lỗi xảy ra, vui lòng mở console để xem dữ liệu.");
+                showNotification("Lỗi khi sao chép, vui lòng thử lại.", "error");
                 console.log(data);
             });
         }
@@ -1298,10 +1449,10 @@
 
                     gameState = importedState;
                     saveGame();
-                    alert("Dữ liệu đã được nhập thành công!");
-                    location.reload();
+                    showNotification("Dữ liệu đã được nhập thành công! Tải lại trang...", "success");
+                    setTimeout(() => location.reload(), 2000);
                 } catch (e) {
-                    alert(`Dữ liệu không hợp lệ! Vui lòng kiểm tra lại. Lỗi: ${e.message}`);
+                    showNotification(`Dữ liệu không hợp lệ! Vui lòng kiểm tra lại.`, "error");
                     console.error("Import error:", e);
                 }
             }
@@ -1373,5 +1524,4 @@
 
     </script>
 </body>
-
 </html>
