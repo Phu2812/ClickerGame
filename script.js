@@ -13,6 +13,7 @@ let gameState = {
     skills: {},
     skillCooldowns: {},
     activeSkills: {},
+    skillSlots: [null, null, null], // Dữ liệu cho 3 ô kỹ năng
     dot: {
         playerFire: { active: false, remainingTime: 0, damage: 0, interval: null },
         playerPoison: { active: false, remainingTime: 0, damage: 0, interval: null },
@@ -116,18 +117,8 @@ const GAME_DATA = {
                 ]
             },
             { 
-                id: 'treasure-hunter', 
-                name: "Thợ săn tiền thưởng", 
-                // Miêu tả mới
-                description: "Mỗi đòn đánh có cơ hội rơi ra Vàng bằng 10% sát thương gây ra.", 
-                cost: 50, 
-                type: "dps",
-                attackSpeed: 800, 
-                icon: "🗡️", 
-                color: "damage-number-hunter", 
-                upgradeIcon: "fa-solid fa-sack-dollar", 
-                maxLevel: 10,
-                // Xóa goldAmount khỏi levelStats
+                id: 'treasure-hunter', name: "Thợ săn tiền thưởng", description: "Mỗi đòn đánh có cơ hội rơi ra Vàng bằng 10% sát thương gây ra.", cost: 50, type: "dps",
+                attackSpeed: 800, icon: "🗡️", color: "damage-number-hunter", upgradeIcon: "fa-solid fa-sack-dollar", maxLevel: 10,
                 levelStats: [
                     { level: 1, damage: 5 }, { level: 2, damage: 8 },
                     { level: 3, damage: 12 }, { level: 4, damage: 17 },
@@ -150,22 +141,13 @@ const GAME_DATA = {
         ],
         economy: [
             { id: 'gold-multiplier', name: "Gold Multiplier", description: "Tăng % vàng rơi", cost: 20, effect: 0.05, type: "economy", maxLevel: 10, icon: "fa-solid fa-percent" },
-            { 
-                id: 'boss-loot', 
-                name: "Boss Loot", 
-                description: "Tăng lượng Gem nhận được khi đánh bại boss.", 
-                cost: 1000, 
-                effect: 1, 
-                type: "economy", 
-                maxLevel: 3,
-                icon: "fa-solid fa-gem" 
-            },
+            { id: 'boss-loot', name: "Boss Loot", description: "Tăng lượng Gem nhận được khi đánh bại boss.", cost: 1500, effect: 1, type: "economy", maxLevel: 3, icon: "fa-solid fa-gem" },
             { id: 'treasure-hunter-eco', name: "Treasure Hunter", description: "Tăng rơi vàng hiếm", cost: 150, effect: 1, type: "economy", maxLevel: Infinity, icon: "fa-solid fa-treasure-chest" },
         ],
         skill: [
-            { id: 'firestorm', name: "Firestorm", description: "Sát thương toàn màn hình", cost: 500, effect: 1, type: "skill", cooldown: 60, duration: 0, maxLevel: Infinity, icon: "fa-solid fa-fire" },
-            { id: 'gold-rush', name: "Gold Rush", description: "Vàng ×2 trong 10s", cost: 1000, effect: 2, type: "skill", cooldown: 120, duration: 10, maxLevel: Infinity, icon: "fa-solid fa-coins" },
-            { id: 'rage-mode', name: "Rage Mode", description: "Click ×5 trong 15s", cost: 2000, effect: 5, type: "skill", cooldown: 90, duration: 15, maxLevel: Infinity, icon: "fa-solid fa-burst" },
+            { id: 'firestorm', name: "Firestorm", description: "Gây sát thương cực lớn bằng 50% máu tối đa của mục tiêu.", cost: 500, effect: 1, type: "skill", cooldown: 60, duration: 0, maxLevel: Infinity, icon: "fa-solid fa-fire" },
+            { id: 'gold-rush', name: "Gold Rush", description: "Nhân đôi lượng vàng nhận được trong 10 giây.", cost: 1000, effect: 2, type: "skill", cooldown: 120, duration: 10, maxLevel: Infinity, icon: "fa-solid fa-coins" },
+            { id: 'rage-mode', name: "Rage Mode", description: "Tăng 5 lần sát thương đòn đánh trong 15 giây.", cost: 2000, effect: 5, type: "skill", cooldown: 90, duration: 15, maxLevel: Infinity, icon: "fa-solid fa-burst" },
         ]
     },
      gemUpgrades: [
@@ -213,9 +195,6 @@ async function initGame() {
     loadGame();
     
     ['click', 'dps', 'economy', 'skill'].forEach(type => {
-        if (!gameState.upgrades[type]) {
-             gameState.upgrades[type] = {};
-        }
         GAME_DATA.upgrades[type].forEach(item => {
             if (!gameState.upgrades[item.id]) {
                 gameState.upgrades[item.id] = { level: 0 };
@@ -240,15 +219,16 @@ async function initGame() {
     updateUI();
     startDpsTimers();
     startSkillCooldownTimer();
-    renderUpgrades();
-    renderGemUpgrades();
-    renderAlbums();
     
     pauseMenu.style.display = 'none';
     zoomPopup.style.display = 'none';
+    const equipModal = document.getElementById('equip-skill-modal');
+    if (equipModal) equipModal.style.display = 'none';
+    
     gameScreen.style.display = 'flex';
     
     monsterContainerRect = document.getElementById('monster-container').getBoundingClientRect();
+    document.addEventListener('keydown', handleKeyPress);
 }
 
 async function loadAlbumsData() {
@@ -378,12 +358,12 @@ function handleMonsterClick(event) {
 
 function applyDot(type, baseDamage, level) {
     let dotData;
-    let dpsItemData; // Dùng cho Mage DOT
+    let dpsItemData;
     if (type === 'playerFire') dotData = findUpgradeData('fire-click');
     else if (type === 'playerPoison') dotData = findUpgradeData('poison-click');
     else if (type === 'mage') {
         dpsItemData = findUpgradeData('mage');
-        dotData = { tickInterval: 1000, duration: 5 }; // Định nghĩa các thuộc tính cơ bản cho DOT của Mage
+        dotData = { tickInterval: 1000, duration: 5 };
     }
 
     if (!dotData) return;
@@ -396,21 +376,17 @@ function applyDot(type, baseDamage, level) {
     gameState.dot[type].remainingTime = dotData.duration;
     gameState.dot[type].active = true;
 
-    // Tính toán sát thương một lần duy nhất ở đây
     let damagePerTick = 0;
     if (type === 'playerFire') {
         const fireUpgradeMultiplier = dotData.damageRatio + (level - 1) * dotData.damageScale;
         const levelBonus = gameState.level * 0.0015;
         const finalMultiplier = fireUpgradeMultiplier + levelBonus;
         damagePerTick = Math.round(baseDamage * finalMultiplier);
-    } else if (type === 'playerPoison') {
-        // Sát thương độc sẽ được tính lại mỗi tick trong interval
     } else if (type === 'mage') {
         const mageLevel = gameState.upgrades['mage']?.level || 0;
         if (mageLevel > 0) {
             const maxLevelForStats = dpsItemData.levelStats.length;
             const mageStats = dpsItemData.levelStats[Math.min(mageLevel, maxLevelForStats) - 1];
-            // Công thức DOT mới cho Mage
             damagePerTick = Math.round((gameState.damagePerClick * mageStats.dotMultiplier) * (1 + gameState.level / 15));
         }
     }
@@ -419,7 +395,6 @@ function applyDot(type, baseDamage, level) {
 
     gameState.dot[type].interval = setInterval(() => {
         if (!isPaused && gameState.dot[type].active) {
-            // Với poison, cần tính lại sát thương mỗi tick vì maxHP của quái có thể thay đổi
             if(type === 'playerPoison') {
                  gameState.dot[type].damage = Math.round(gameState.maxMonsterHP * (dotData.damageRatio + (level - 1) * dotData.damageScale));
             }
@@ -508,14 +483,9 @@ function buyUpgrade(id) {
     
     if (gameState.gold >= currentCost) {
         gameState.gold -= currentCost;
-        if (!gameState.upgrades[id]) {
-            gameState.upgrades[id] = { level: 0 };
-        }
         gameState.upgrades[id].level++;
-        
         recalculateStats();
         updateUI();
-        // renderUpgrades(); // Đã được gọi trong updateUI
         startDpsTimers();
         saveGame();
     } else {
@@ -532,14 +502,9 @@ function buyGemUpgrade(id) {
 
     if (gameState.gems >= currentCost) {
         gameState.gems -= currentCost;
-        if (!gameState.gemUpgrades[id]) {
-            gameState.gemUpgrades[id] = { level: 0 };
-        }
         gameState.gemUpgrades[id].level++;
-        
         recalculateStats();
         updateUI();
-        // renderGemUpgrades(); // Đã được gọi trong updateUI
         saveGame();
     } else {
         showNotification("Không đủ Gem!", "error");
@@ -556,10 +521,7 @@ function buyAlbum(id) {
             gameState.albums[id] = {};
         }
         gameState.albums[id].unlocked = true;
-        
         updateUI();
-        renderAlbums();
-        saveGame();
     } else {
         showNotification("Không đủ vàng!", "error");
     }
@@ -587,8 +549,7 @@ function useSkill(id) {
 
         if (gameState.currentMonsterHP <= 0) defeatMonster();
     } else if (skillData.duration > 0) {
-        let effectMultiplier = skillData.effect;
-        gameState.activeSkills[id] = effectMultiplier;
+        gameState.activeSkills[id] = skillData.effect;
 
         if (id === 'gold-rush') {
             screenOverlay.className = 'screen-effect-overlay gold-rush';
@@ -608,7 +569,6 @@ function useSkill(id) {
                 particleContainer.innerHTML = '';
             }
             screenOverlay.style.opacity = 0;
-
         }, skillData.duration * 1000);
     }
 
@@ -626,7 +586,6 @@ function recalculateStats() {
     gameState.damagePerClick = baseClickDamage;
 }
 
-
 // --- UI Functions ---
 
 function updateUI() {
@@ -641,6 +600,7 @@ function updateUI() {
 
     renderUpgrades();
     renderGemUpgrades();
+    renderSkillBar();
 }
 
 function renderUpgrades() {
@@ -652,7 +612,7 @@ function renderUpgrades() {
     };
 
     for (const type in containers) {
-        if (containers[type]) {
+        if(containers[type]) {
             containers[type].innerHTML = '';
             if (type === 'click') {
                 containers[type].innerHTML += `<h2 class="col-span-1 md:col-span-2 text-xl font-bold text-indigo-300 border-b-2 border-indigo-500 pb-2 mb-4">Click Thuần</h2>`;
@@ -740,16 +700,17 @@ function renderUpgradeCard(upgrade, container) {
                 extraInfo = `<p class="text-sm text-gray-400">Tỉ lệ hiện tại: ${currentLevel * 5}%</p>`;
                 nextLevelInfo = isMaxLevel ? `Đã đạt tối đa` : `Cấp tiếp theo: ${ (currentLevel + 1) * 5}%`;
                 break;
-            
-            // LOGIC MỚI CHO CÁC NÂNG CẤP NGUYÊN TỐ
             case 'fire-click':
                 if (currentLevel > 0) {
                     const currentMultiplier = (upgrade.damageRatio + (currentLevel - 1) * upgrade.damageScale) * 100;
                     extraInfo = `<p class="text-sm text-gray-400">Hệ số đốt hiện tại: ${currentMultiplier.toFixed(0)}%</p>`;
-                    nextLevelInfo = isMaxLevel ? 'Đã đạt tối đa' : `Cấp tiếp theo: ${((upgrade.damageRatio + currentLevel * upgrade.damageScale) * 100).toFixed(0)}%`;
                 } else {
-                    const nextMultiplier = (upgrade.damageRatio * 100);
-                    nextLevelInfo = `Mở khóa: Gây hiệu ứng đốt ${nextMultiplier.toFixed(0)}% DMG/tick`;
+                    nextLevelInfo = `Mở khóa: Gây hiệu ứng đốt ${(upgrade.damageRatio * 100).toFixed(0)}% DMG/tick`;
+                }
+                if (!isMaxLevel && currentLevel > 0) {
+                    nextLevelInfo = `Cấp tiếp theo: ${((upgrade.damageRatio + currentLevel * upgrade.damageScale) * 100).toFixed(0)}%`;
+                } else if(isMaxLevel) {
+                    nextLevelInfo = 'Đã đạt tối đa';
                 }
                 break;
             case 'poison-click':
@@ -757,8 +718,7 @@ function renderUpgradeCard(upgrade, container) {
                     const currentDmg = ((upgrade.damageRatio + (currentLevel - 1) * upgrade.damageScale) * 100).toFixed(1);
                     extraInfo = `<p class="text-sm text-gray-400">Sát thương độc: ${currentDmg}% HP/giây</p>`;
                 } else {
-                    const nextDmg = (upgrade.damageRatio * 100).toFixed(1);
-                    nextLevelInfo = `Mở khóa: Gây độc ${nextDmg}% HP tối đa/giây`;
+                    nextLevelInfo = `Mở khóa: Gây độc ${(upgrade.damageRatio * 100).toFixed(1)}% HP tối đa/giây`;
                 }
                 if (!isMaxLevel && currentLevel > 0) {
                     const nextDmg = ((upgrade.damageRatio + currentLevel * upgrade.damageScale) * 100).toFixed(1);
@@ -795,7 +755,6 @@ function renderUpgradeCard(upgrade, container) {
                     nextLevelInfo = 'Đã đạt tối đa';
                 }
                 break;
-
             case 'gold-multiplier':
                 extraInfo = `<p class="text-sm text-gray-400">Bonus hiện tại: +${currentLevel * 5}% vàng</p>`;
                 nextLevelInfo = isMaxLevel ? `Đã đạt tối đa` : `Tiếp theo: +${(currentLevel + 1) * 5}%`;
@@ -814,9 +773,10 @@ function renderUpgradeCard(upgrade, container) {
 
     if (type === 'skill') {
         const cooldownLeft = gameState.skillCooldowns[upgrade.id] || 0;
-        const isDisabled = cooldownLeft > 0 || currentLevel === 0;
-        const buttonSkillClass = isDisabled ? 'bg-gray-700 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500';
-        const buttonText = currentLevel > 0 ? (isDisabled ? `Hồi chiêu: ${cooldownLeft}s` : 'Sử dụng') : `Mở khóa (💰 ${currentCost.toLocaleString()})`;
+        const isDisabled = currentLevel === 0;
+        const buttonText = currentLevel > 0 ? 'Trang bị' : `Mở khóa (💰 ${currentCost.toLocaleString()})`;
+        const canBuyOrEquip = (currentLevel > 0) || (currentLevel === 0 && canAfford);
+        const buttonSkillClass = canBuyOrEquip ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-gray-700 cursor-not-allowed';
 
         container.innerHTML += `
             <div class="bg-gray-800 p-4 rounded-lg flex flex-col md:flex-row items-center gap-4 relative">
@@ -827,15 +787,15 @@ function renderUpgradeCard(upgrade, container) {
                     <p class="text-sm mt-1">${levelDisplay}</p>
                 </div>
                 <div class="flex-shrink-0 w-full md:w-48">
-                    <button class="w-full p-3 rounded-md ${buttonSkillClass} font-bold" onclick="${currentLevel > 0 ? `useSkill('${upgrade.id}')` : `buyUpgrade('${upgrade.id}')`}" ${isDisabled && currentLevel > 0 ? 'disabled' : ''}>
+                     <button class="w-full p-3 rounded-md ${buttonSkillClass} font-bold" 
+                             onclick="${currentLevel > 0 ? `openEquipModal('${upgrade.id}')` : `buyUpgrade('${upgrade.id}')`}" 
+                             ${!canBuyOrEquip ? 'disabled' : ''}>
                         ${buttonText}
                     </button>
                 </div>
-                ${currentLevel > 0 && cooldownLeft > 0 ? `<div class="absolute bottom-0 left-0 h-1 bg-indigo-900 rounded-b-lg w-full"><div class="bg-indigo-400 h-full rounded-b-lg" style="width: ${((upgrade.cooldown - cooldownLeft) / upgrade.cooldown) * 100}%;"></div></div>` : ''}
             </div>`;
     } else {
         const iconHtml = upgrade.upgradeIcon ? `<i class="${upgrade.upgradeIcon} mr-2"></i>` : (upgrade.icon ? `<i class="${upgrade.icon} mr-2"></i>` : '');
-        // Thay đổi nội dung nút bấm khi cấp 0
         const buttonText = currentLevel > 0 ? levelDisplay : 'Mở khóa';
 
         container.innerHTML += `
@@ -857,6 +817,7 @@ function renderUpgradeCard(upgrade, container) {
 }
 
 function renderGemUpgrades() {
+    if(!gemUpgradesContainer) return;
     gemUpgradesContainer.innerHTML = '';
     GAME_DATA.gemUpgrades.forEach(upgrade => {
         const currentLevel = gameState.gemUpgrades[upgrade.id]?.level || 0;
@@ -959,34 +920,33 @@ function displayDamageNumber(x, y, damage, type) {
     let content = Math.round(damage).toLocaleString();
     damageNumber.classList.add('damage-number');
 
-    let iconHtml = ''; // Biến để chứa icon
+    let iconHtml = ''; 
+    
+    const dpsData = type.startsWith('dps-') ? findUpgradeData(type.substring(4)) : null;
 
-    // Gán icon dựa trên loại sát thương
-    switch(type) {
-        case 'crit': iconHtml = '💥 '; damageNumber.classList.add('damage-number-crit'); break;
-        case 'dot-fire': iconHtml = '🔥 '; damageNumber.classList.add('damage-number-dot-fire'); break;
-        case 'dot-poison': iconHtml = '💀 '; damageNumber.classList.add('damage-number-dot-poison'); break;
-        case 'dot-mage': iconHtml = '✨ '; damageNumber.classList.add('damage-number-dot-mage'); break;
-        case 'lightning': iconHtml = '⚡ '; damageNumber.classList.add('damage-number-lightning'); break;
-        case 'gold': iconHtml = '💰 '; content = `+${content}`; damageNumber.classList.add('damage-number-gold'); break;
-        case 'gem': iconHtml = '💎 '; content = `+${content}`; damageNumber.classList.add('damage-number-gem'); break;
-        case 'skill': iconHtml = '⭐ '; damageNumber.classList.add('damage-number-skill'); break;
-        case 'click':
-        default:
-            iconHtml = '🖱️ ';
-            damageNumber.style.color = '#b0c4de';
-            damageNumber.style.fontSize = '1.2rem';
-            break;
-    }
-
-    if (type.startsWith('dps-')) {
-        const dpsId = type.substring(4);
-        const dpsData = findUpgradeData(dpsId);
-        if (dpsData) iconHtml = `${dpsData.icon} `;
-        damageNumber.classList.add(`damage-number-${dpsId}`);
+    if (dpsData) {
+        iconHtml = `${dpsData.icon} `;
+        damageNumber.classList.add(`damage-number-${type.substring(4)}`);
+    } else {
+        switch(type) {
+            case 'crit': iconHtml = '💥 '; damageNumber.classList.add('damage-number-crit'); break;
+            case 'dot-fire': iconHtml = '🔥 '; damageNumber.classList.add('damage-number-dot-fire'); break;
+            case 'dot-poison': iconHtml = '💀 '; damageNumber.classList.add('damage-number-dot-poison'); break;
+            case 'dot-mage': iconHtml = '✨ '; damageNumber.classList.add('damage-number-dot-mage'); break;
+            case 'lightning': iconHtml = '⚡ '; damageNumber.classList.add('damage-number-lightning'); break;
+            case 'gold': iconHtml = '💰 '; content = `+${content}`; damageNumber.classList.add('damage-number-gold'); break;
+            case 'gem': iconHtml = '💎 '; content = `+${content}`; damageNumber.classList.add('damage-number-gem'); break;
+            case 'skill': iconHtml = '⭐ '; damageNumber.classList.add('damage-number-skill'); break;
+            case 'click':
+            default:
+                iconHtml = '🖱️ ';
+                damageNumber.style.color = '#b0c4de';
+                damageNumber.style.fontSize = '1.2rem';
+                break;
+        }
     }
     
-    damageNumber.innerHTML = iconHtml + content; // Luôn có icon đứng trước
+    damageNumber.innerHTML = iconHtml + content;
 
     const randomX = (Math.random() - 0.5) * 60;
     const randomY = (Math.random() - 0.5) * 60;
@@ -999,6 +959,7 @@ function displayDamageNumber(x, y, damage, type) {
         damageNumber.remove();
     }, 1000);
 }
+
 
 function showNotification(message, type = 'info', duration = 3000) {
     const container = document.getElementById('notification-container');
@@ -1054,14 +1015,12 @@ function startDpsTimers() {
             let baseDamage = calculateDpsDamage(dpsItem, dpsLevel, currentStats);
             let finalSpeed = dpsItem.attackSpeed;
 
-            // Áp dụng bonus tốc độ đánh theo level người chơi
             if (dpsItem.id === 'archer' || dpsItem.id === 'treasure-hunter') {
                 const speedBonusFactor = dpsItem.id === 'archer' ? 0.002 : 0.001;
                 finalSpeed /= (1 + gameState.level * speedBonusFactor);
             }
 
             let finalDamage = baseDamage;
-            // Áp dụng buff chung
             if (dpsItem.id !== 'pet') {
                 finalDamage *= (1 + petBuffDamage);
             }
@@ -1085,17 +1044,14 @@ function startDpsTimers() {
 
 function applyDpsDamage(dpsItem, finalDamage, currentStats) {
     let type = dpsItem.id;
-
-    // Xử lý hiệu ứng đặc biệt của Mage (kích hoạt DOT)
+    
     if (type === 'mage') {
         const dotProcChance = 0.25; 
         if (Math.random() < dotProcChance && !gameState.dot.mage.active) {
             applyDot('mage', finalDamage, currentStats.level);
         }
     } 
-    // Xử lý hiệu ứng đặc biệt của Thợ săn (kiếm vàng)
     else if (type === 'treasure-hunter') {
-        // CÔNG THỨC MỚI: 10% sát thương, tối thiểu là 1
         const goldFromHunter = Math.max(1, Math.round(finalDamage * 0.1));
         const goldEcoBonus = (gameState.upgrades['treasure-hunter-eco']?.level || 0) * 0.1 + 1;
         const finalGold = goldFromHunter * goldEcoBonus;
@@ -1104,7 +1060,6 @@ function applyDpsDamage(dpsItem, finalDamage, currentStats) {
         displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, Math.round(finalGold), 'gold');
     }
     
-    // Gây sát thương chính
     gameState.currentMonsterHP -= Math.round(finalDamage);
     displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, finalDamage, `dps-${type}`);
 
@@ -1113,6 +1068,7 @@ function applyDpsDamage(dpsItem, finalDamage, currentStats) {
     }
     updateUI();
 }
+
 
 function startSkillCooldownTimer() {
     if (skillCooldownInterval) clearInterval(skillCooldownInterval);
@@ -1125,7 +1081,7 @@ function startSkillCooldownTimer() {
                     needsRender = true;
                 }
             }
-            if(needsRender) renderUpgrades();
+            if(needsRender) renderSkillBar();
         }
     }, 1000);
 }
@@ -1195,13 +1151,14 @@ function resumeGame() {
 }
 
 function zoomImage(imageSrc) {
+    if(!zoomPopup) return;
     const zoomImageElement = document.getElementById('zoom-image');
     zoomImageElement.src = imageSrc;
     zoomPopup.style.display = 'flex';
 }
 
 function closeZoomPopup() {
-    zoomPopup.style.display = 'none';
+    if(zoomPopup) zoomPopup.style.display = 'none';
 }
 
 function findUpgradeData(id) {
@@ -1235,10 +1192,109 @@ document.getElementById('pause-button').addEventListener('click', () => {
      else resumeGame();
 });
 
+// --- CÁC HÀM MỚI CHO HỆ THỐNG KỸ NĂNG ---
+
+function renderSkillBar() {
+    gameState.skillSlots.forEach((skillId, index) => {
+        const slotElement = document.getElementById(`skill-slot-${index}`);
+        if (!slotElement) return;
+
+        slotElement.innerHTML = `<i class="fas fa-plus"></i>
+                               <div class="skill-cooldown-overlay"></div>
+                               <span class="skill-keybind">${index + 1}</span>`;
+
+        if (skillId) {
+            const skillData = findUpgradeData(skillId);
+            if (skillData) {
+                slotElement.querySelector('i').className = `fas ${skillData.icon} skill-icon`;
+                
+                const cooldownLeft = gameState.skillCooldowns[skillId] || 0;
+                const cooldownOverlay = slotElement.querySelector('.skill-cooldown-overlay');
+
+                if (cooldownLeft > 0) {
+                    slotElement.classList.add('on-cooldown');
+                    cooldownOverlay.textContent = cooldownLeft;
+                    const percentage = (cooldownLeft / skillData.cooldown) * 100;
+                    cooldownOverlay.style.clipPath = `inset(${100 - percentage}% 0 0 0)`;
+                } else {
+                    slotElement.classList.remove('on-cooldown');
+                    cooldownOverlay.textContent = '';
+                    cooldownOverlay.style.clipPath = `inset(100% 0 0 0)`;
+                }
+            }
+        }
+    });
+}
+
+let skillToEquip = null;
+const equipSkillModal = document.getElementById('equip-skill-modal');
+
+function openEquipModal(skillId) {
+    skillToEquip = skillId;
+    const modalSlotsContainer = document.getElementById('modal-skill-slots');
+    modalSlotsContainer.innerHTML = '';
+
+    for (let i = 0; i < 3; i++) {
+        const modalSlot = document.createElement('div');
+        modalSlot.className = 'skill-slot';
+        modalSlot.onclick = () => equipSkill(skillToEquip, i);
+
+        const currentSkillId = gameState.skillSlots[i];
+        if (currentSkillId) {
+            const skillData = findUpgradeData(currentSkillId);
+            modalSlot.innerHTML = `<i class="fas ${skillData.icon} skill-icon"></i>`;
+        } else {
+            modalSlot.innerHTML = `<i class="fas fa-plus"></i>`;
+        }
+        modalSlotsContainer.appendChild(modalSlot);
+    }
+    
+    if(equipSkillModal) equipSkillModal.style.display = 'flex';
+}
+
+function closeEquipModal() {
+    skillToEquip = null;
+    if(equipSkillModal) equipSkillModal.style.display = 'none';
+}
+
+function equipSkill(skillId, slotIndex) {
+    const existingIndex = gameState.skillSlots.indexOf(skillId);
+    if (existingIndex !== -1) {
+        gameState.skillSlots[existingIndex] = null;
+    }
+
+    gameState.skillSlots[slotIndex] = skillId;
+    closeEquipModal();
+    renderSkillBar();
+    saveGame();
+}
+
+function unequipSkill(slotIndex) {
+    event.preventDefault(); // Ngăn menu chuột phải hiện ra
+    if (gameState.skillSlots[slotIndex]) {
+        gameState.skillSlots[slotIndex] = null;
+        renderSkillBar();
+        saveGame();
+        showNotification("Đã gỡ trang bị kỹ năng.", "info");
+    }
+}
+
+function activateSkillFromSlot(slotIndex) {
+    const skillId = gameState.skillSlots[slotIndex];
+    if (skillId) {
+        useSkill(skillId);
+    }
+}
+
+function handleKeyPress(event) {
+    if (isPaused) return;
+    const keyMap = { '1': 0, '2': 1, '3': 2 };
+    const slotIndex = keyMap[event.key];
+    if (slotIndex !== undefined) {
+        activateSkillFromSlot(slotIndex);
+    }
+}
+
 showSubTab('click-upgrades');
 showTab('upgrade');
-
 initGame();
-
-
-
