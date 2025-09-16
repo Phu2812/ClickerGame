@@ -667,12 +667,13 @@ function renderUpgradeCard(upgrade, container) {
     let levelDisplay = `Cấp: ${currentLevel}`;
     let nextLevelInfo = '';
 
-    if (upgrade.type === 'dps') {
+    // Khối logic hiển thị thông tin chi tiết cho từng loại nâng cấp
+    if (type === 'dps') {
         levelDisplay = `Cấp: ${currentLevel} / ${maxLevel}`;
         if (currentLevel > 0) {
             const currentStats = upgrade.levelStats[currentLevel - 1];
             let currentDmg = Math.round(calculateDpsDamage(upgrade, currentLevel, currentStats));
-            extraInfo += `<p class="text-sm text-gray-400">Sát thương: ${currentDmg.toLocaleString()}</p>`;
+            extraInfo += `<p class="text-sm text-gray-400">Chỉ số hiện tại: ${currentDmg.toLocaleString()} sát thương</p>`;
         }
         if (!isMaxLevel) {
             const nextStats = upgrade.levelStats[currentLevel];
@@ -683,39 +684,84 @@ function renderUpgradeCard(upgrade, container) {
         }
     } else {
          switch (upgrade.id) {
-            case 'power-click': nextLevelInfo = `DMG +1`; break;
-            case 'critical-chance': levelDisplay = `Tỉ lệ: ${currentLevel}%`; nextLevelInfo = isMaxLevel ? `Tối đa` : `Tỉ lệ +1%`; break;
-            case 'critical-damage': levelDisplay = `Bonus: +${currentLevel * 10}%`; nextLevelInfo = `Bonus +10%`; break;
-            case 'double-tap': levelDisplay = `Tỉ lệ: ${currentLevel * 5}%`; nextLevelInfo = isMaxLevel ? `Tối đa` : `Tỉ lệ +5%`; break;
+            case 'power-click':
+                levelDisplay = `Cấp: ${currentLevel}`;
+                if (currentLevel > 0) extraInfo = `<p class="text-sm text-gray-400">Bonus hiện tại: +${currentLevel.toLocaleString()} DMG</p>`;
+                nextLevelInfo = `Cấp tiếp theo: +${(currentLevel + 1).toLocaleString()} DMG`;
+                break;
+            case 'critical-chance':
+                levelDisplay = `Cấp: ${currentLevel} / ${maxLevel}`;
+                extraInfo = `<p class="text-sm text-gray-400">Tỉ lệ hiện tại: ${currentLevel}%</p>`;
+                nextLevelInfo = isMaxLevel ? `Đã đạt tối đa` : `Cấp tiếp theo: ${currentLevel + 1}%`;
+                break;
+            case 'critical-damage':
+                levelDisplay = `Cấp: ${currentLevel}`;
+                extraInfo = `<p class="text-sm text-gray-400">Sát thương chí mạng: ${200 + currentLevel * 10}%</p>`;
+                nextLevelInfo = `Cấp tiếp theo: ${200 + (currentLevel + 1) * 10}%`;
+                break;
+            case 'double-tap':
+                levelDisplay = `Cấp: ${currentLevel} / ${maxLevel}`;
+                extraInfo = `<p class="text-sm text-gray-400">Tỉ lệ hiện tại: ${currentLevel * 5}%</p>`;
+                nextLevelInfo = isMaxLevel ? `Đã đạt tối đa` : `Cấp tiếp theo: ${ (currentLevel + 1) * 5}%`;
+                break;
             case 'fire-click':
-                if (currentLevel > 0) nextLevelInfo = isMaxLevel ? 'Tối đa' : `Tăng sức mạnh hiệu ứng`;
-                else nextLevelInfo = "Mở khóa hiệu ứng Đốt";
+                levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`;
+                if (currentLevel > 0) {
+                    const currentMultiplier = (upgrade.damageRatio + (currentLevel - 1) * upgrade.damageScale) * 100;
+                    extraInfo = `<p class="text-sm text-gray-400">Hệ số đốt hiện tại: ${currentMultiplier.toFixed(0)}%</p>`;
+                }
+                if (!isMaxLevel) {
+                    const nextMultiplier = (upgrade.damageRatio + currentLevel * upgrade.damageScale) * 100;
+                    nextLevelInfo = `Cấp tiếp theo: ${nextMultiplier.toFixed(0)}%`;
+                } else { nextLevelInfo = 'Đã đạt tối đa'; }
                 break;
             case 'poison-click':
-                 if (currentLevel > 0) nextLevelInfo = isMaxLevel ? 'Tối đa' : `Tăng % sát thương`;
-                else nextLevelInfo = "Mở khóa hiệu ứng Độc";
+                levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`;
+                if (currentLevel > 0) {
+                    const currentDmg = ((upgrade.damageRatio + (currentLevel - 1) * upgrade.damageScale) * 100).toFixed(1);
+                    extraInfo = `<p class="text-sm text-gray-400">Sát thương độc: ${currentDmg}% HP/giây</p>`;
+                }
+                if (!isMaxLevel) {
+                    const nextDmg = ((upgrade.damageRatio + currentLevel * upgrade.damageScale) * 100).toFixed(1);
+                    nextLevelInfo = `Cấp tiếp theo: ${nextDmg}% HP/giây`;
+                } else { nextLevelInfo = 'Đã đạt tối đa'; }
                 break;
             case 'lightning-click':
-                 if (currentLevel > 0) nextLevelInfo = isMaxLevel ? 'Tối đa' : `Tăng số hit tối thiểu`;
-                else nextLevelInfo = "Mở khóa hiệu ứng Sét";
+                levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`;
+                const maxHits = 5 + Math.floor(gameState.level / 50);
+                if (currentLevel > 0) {
+                    extraInfo = `<p class="text-sm text-gray-400">Số đòn đánh: ${upgrade.minHits[currentLevel - 1]}-${maxHits}</p>`;
+                }
+                if (!isMaxLevel) {
+                    nextLevelInfo = `Cấp tiếp theo: ${upgrade.minHits[currentLevel]}-${maxHits} đòn`;
+                } else { nextLevelInfo = 'Đã đạt tối đa'; }
                 break;
             case 'ice-click':
+                levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`;
                 if (currentLevel > 0) {
                     const effect = upgrade.effects[currentLevel - 1];
-                    extraInfo = `<p class="text-sm text-gray-400">Tỉ lệ: ${effect.chance*100}%, Buff: +${effect.buff*100}%</p>`;
-                    if (!isMaxLevel) {
-                       const nextEffect = upgrade.effects[currentLevel];
-                       nextLevelInfo = `Cấp tiếp theo: ${nextEffect.chance*100}% tỉ lệ, +${nextEffect.buff*100}% buff`;
-                    } else { nextLevelInfo = 'Tối đa'; }
-                } else { nextLevelInfo = "Mở khóa hiệu ứng Băng"; }
+                    extraInfo = `<p class="text-sm text-gray-400">Hiện tại: ${effect.chance*100}% tỉ lệ, +${effect.buff*100}% buff</p>`;
+                }
+                if (!isMaxLevel) {
+                   const nextEffect = upgrade.effects[currentLevel];
+                   nextLevelInfo = `Cấp tiếp theo: ${nextEffect.chance*100}% tỉ lệ, +${nextEffect.buff*100}% buff`;
+                } else { nextLevelInfo = 'Đã đạt tối đa'; }
                 break;
             case 'gold-multiplier':
-                const currentGoldBonus = currentLevel * 5;
-                levelDisplay = `Bonus: +${currentGoldBonus}% Vàng`;
-                nextLevelInfo = isMaxLevel ? `Tối đa` : `Tiếp theo: +${currentGoldBonus + 5}%`;
+                levelDisplay = `Cấp: ${currentLevel} / ${maxLevel}`;
+                extraInfo = `<p class="text-sm text-gray-400">Bonus hiện tại: +${currentLevel * 5}% vàng</p>`;
+                nextLevelInfo = isMaxLevel ? `Đã đạt tối đa` : `Tiếp theo: +${(currentLevel + 1) * 5}%`;
                 break;
-            case 'boss-loot': nextLevelInfo = `Tăng gem nhận từ boss`; break;
-            case 'treasure-hunter-eco': nextLevelInfo = `Tăng vàng từ Thợ Săn`; break;
+            case 'boss-loot':
+                levelDisplay = `Cấp: ${currentLevel}`;
+                extraInfo = `<p class="text-sm text-gray-400">Gem nhận thêm: +${currentLevel}</p>`;
+                nextLevelInfo = `Cấp tiếp theo: +${currentLevel + 1} gem`;
+                break;
+            case 'treasure-hunter-eco':
+                levelDisplay = `Cấp: ${currentLevel}`;
+                extraInfo = `<p class="text-sm text-gray-400">Hệ số vàng: x${(1 + currentLevel * 0.1).toFixed(1)}</p>`;
+                nextLevelInfo = `Cấp tiếp theo: x${(1 + (currentLevel + 1) * 0.1).toFixed(1)}`;
+                break;
         }
     }
 
@@ -741,17 +787,18 @@ function renderUpgradeCard(upgrade, container) {
     } else {
         const iconHtml = upgrade.upgradeIcon ? `<i class="${upgrade.upgradeIcon} mr-2"></i>` : (upgrade.icon ? `<i class="${upgrade.icon} mr-2"></i>` : '');
         container.innerHTML += `
-            <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between">
+            <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between h-full">
                 <div>
                     <h3 class="font-bold text-lg text-indigo-400">${iconHtml}${upgrade.name}</h3>
                     <p class="text-sm text-gray-400 mt-1">${description}</p>
-                    ${extraInfo}
-                    <p class="text-sm mt-2">${levelDisplay}</p>
-                    <p class="text-sm text-yellow-300">${nextLevelInfo}</p>
+                    <div class="mt-2 space-y-1">
+                        ${extraInfo}
+                        <p class="text-sm text-yellow-300">${nextLevelInfo}</p>
+                    </div>
                 </div>
                 <div class="mt-4 flex items-center justify-between">
-                    <span class="text-yellow-400 text-sm font-bold">${isMaxLevel ? 'Đã tối đa' : `💰 ${currentCost}`}</span>
-                    <button class="p-2 rounded-md ${buttonClass}" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Nâng cấp</button>
+                    <span class="text-yellow-400 text-sm font-bold">${isMaxLevel ? 'Đã tối đa' : `💰 ${currentCost.toLocaleString()}`}</span>
+                    <button class="p-2 rounded-md ${buttonClass}" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>${levelDisplay}</button>
                 </div>
             </div>`;
     }
@@ -1220,6 +1267,7 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
+
 
 
 
