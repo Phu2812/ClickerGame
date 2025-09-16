@@ -51,28 +51,40 @@ const GAME_DATA = {
         { name: "Cosmic Devourer", icon: "fa-solid fa-galaxy", biome: "Vùng hư vô" },
     ],
     upgrades: {
-         click: [
+        click: [
             { id: 'power-click', name: "Power Click", description: "Tăng sát thương mỗi click.", cost: 10, type: "click", maxLevel: Infinity, icon: "fa-solid fa-hand-pointer", category: "pure" },
             { id: 'critical-chance', name: "Critical Chance", description: "Tăng tỉ lệ gây sát thương chí mạng.", cost: 25, type: "click", maxLevel: 100, icon: "fa-solid fa-crosshairs", category: "pure" },
             { id: 'critical-damage', name: "Critical Damage", description: "Tăng sát thương khi chí mạng.", cost: 50, type: "click", maxLevel: Infinity, icon: "fa-solid fa-bolt", category: "pure" },
             { id: 'double-tap', name: "Double Tap", description: "Tỉ lệ tấn công 2 lần mỗi khi click.", cost: 75, type: "click", maxLevel: 20, icon: "fa-solid fa-2", category: "pure" },
             { 
-                id: 'fire-click', name: "Fire Element", description: "Đòn đánh có hiệu ứng đốt, gây sát thương theo thời gian.", cost: 200, 
+                id: 'fire-click', name: "Fire Element", 
+                // THAY ĐỔI MIÊU TẢ
+                description: "Phủ ngọn lửa ma thuật lên đòn đánh. Gây sát thương thiêu đốt liên tục, sức nóng tăng tiến theo sát thương đòn đánh và level của bạn.", 
+                cost: 200, 
                 damageRatio: 0.5, damageScale: 0.1, tickInterval: 500, duration: 3, type: "click", maxLevel: 5,
                 icon: "fa-solid fa-fire", category: "elemental"
             },
             { 
-                id: 'poison-click', name: "Poison Element", description: "Đòn đánh có hiệu ứng độc, gây sát thương dựa trên % máu tối đa của quái.", cost: 250, 
+                id: 'poison-click', name: "Poison Element", 
+                // THAY ĐỔI MIÊU TẢ
+                description: "Sử dụng chất độc ăn mòn. Gây sát thương độc tố dựa trên phần trăm máu tối đa của kẻ địch, cực kỳ hiệu quả với những mục tiêu trâu bò.", 
+                cost: 250, 
                 damageRatio: 0.01, damageScale: 0.002, tickInterval: 1000, duration: 5, type: "click", maxLevel: 6,
                 icon: "fa-solid fa-skull-crossbones", category: "elemental"
             },
             { 
-                id: 'lightning-click', name: "Lightning Element", description: "Đòn đánh có thể tạo ra chuỗi sét, gây thêm nhiều đòn đánh phụ.", cost: 200, 
+                id: 'lightning-click', name: "Lightning Element", 
+                // THAY ĐỔI MIÊU TẢ
+                description: "Tích tụ năng lượng bão tố. Mỗi đòn đánh có 15% tỉ lệ triệu hồi một cơn mưa sét. Càng ở level cao, cơn bão càng lớn với nhiều tia sét hơn.", 
+                cost: 200, 
                 damageRatio: 0.8, minHits: [1, 2, 3, 4, 5], maxHits: 5, type: "click", maxLevel: 5,
                 icon: "fa-solid fa-bolt-lightning", category: "elemental"
             },
             {
-                id: 'ice-click', name: "Ice Element", description: "Đòn đánh có tỉ lệ đóng băng quái, tăng sát thương cho đồng minh DPS.", cost: 300,
+                id: 'ice-click', name: "Ice Element", 
+                // THAY ĐỔI MIÊU TẢ
+                description: "Tụ hợp khí lạnh. Đòn đánh có tỉ lệ đóng băng kẻ địch trong 5 giây, khiến chúng trở nên脆弱. Toàn bộ đồng minh DPS sẽ gây sát thương cộng thêm cực lớn lên mục tiêu bị đóng băng.", 
+                cost: 300,
                 effects: [
                     { chance: 0.20, buff: 0.15, duration: 5 }, { chance: 0.35, buff: 0.15, duration: 5 }, 
                     { chance: 0.50, buff: 0.15, duration: 5 }, { chance: 0.50, buff: 0.30, duration: 5 }, 
@@ -1113,5 +1125,6 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
+
 
 
