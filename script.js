@@ -613,6 +613,7 @@ function updateUI() {
     hpText.textContent = `${Math.max(0, Math.round(gameState.currentMonsterHP)).toLocaleString()} / ${Math.round(gameState.maxMonsterHP).toLocaleString()}`;
 
     renderUpgrades(); // <--- THÊM DÒNG NÀY VÀO ĐÂY
+    renderGemUpgrades();
 }
 
 function renderUpgrades() {
@@ -1112,4 +1113,5 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
+
 
