@@ -1,0 +1,245 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #0d1117;
+    color: #ffffff;
+    overflow: hidden;
+    user-select: none;
+}
+
+.gradient-text {
+    background: linear-gradient(90deg, #8a2be2, #4b0082);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.glow-button {
+    transition: all 0.3s ease;
+    box-shadow: 0 0 5px #4b0082, 0 0 10px #8a2be2;
+}
+
+.glow-button:hover {
+    box-shadow: 0 0 10px #4b0082, 0 0 20px #8a2be2, 0 0 30px #4b0082;
+}
+
+.scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background: #1f2937;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background-color: #8a2be2;
+    border-radius: 4px;
+}
+
+#health-bar-fill {
+    transition: width 0.3s ease-out;
+}
+
+.damage-number {
+    position: absolute;
+    font-weight: bold;
+    animation: float-up 1s forwards, fade-out 1s forwards;
+    pointer-events: none;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.damage-number-crit {
+    font-size: 2rem;
+    color: #ff4500; /* OrangeRed */
+}
+
+.damage-number-dot-fire {
+    font-size: 1.2rem;
+    color: #ff0000;
+}
+
+.damage-number-dot-poison {
+    font-size: 1.2rem;
+    color: #32cd32;
+}
+
+.damage-number-dot-mage {
+     font-size: 1.4rem;
+     font-weight: bold;
+     color: #bf00ff;
+}
+
+.damage-number-dps {
+    font-size: 1rem;
+    color: #b0c4de;
+}
+
+.damage-number-swordsman {
+    color: #add8e6; /* LightBlue */
+}
+
+.damage-number-mage {
+    color: #8a2be2; /* BlueViolet */
+}
+
+.damage-number-archer {
+    color: #90ee90; /* LightGreen */
+}
+
+.damage-number-hunter {
+    color: #ffd700; /* Gold */
+}
+
+.damage-number-pet {
+    color: #ff69b4; /* HotPink */
+}
+
+.damage-number-gold {
+    font-size: 1.2rem;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.damage-number-gem {
+    font-size: 1.2rem;
+    color: #00ffff;
+    font-weight: bold;
+}
+
+.damage-number-skill {
+    font-size: 1.5rem;
+    color: #ff8c00; /* DarkOrange */
+}
+
+.damage-number-lightning {
+    font-size: 1.3rem;
+    color: #f0e68c; /* Khaki */
+}
+
+.monster-frozen {
+    filter: drop-shadow(0 0 10px #00ffff) brightness(1.2);
+    transition: filter 0.3s ease;
+}
+
+@keyframes float-up {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(-50px); opacity: 0; }
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.album-image-container {
+    position: relative;
+}
+
+.locked-image {
+    filter: blur(5px) grayscale(100%);
+    transition: filter 0.5s ease;
+}
+
+.unlocked-image {
+    filter: none;
+    transition: filter 0.5s ease;
+}
+
+.boss-glow {
+    animation: boss-pulse 2s infinite alternate;
+}
+
+@keyframes boss-pulse {
+    from { filter: drop-shadow(0 0 5px #ff0000); }
+    to { filter: drop-shadow(0 0 15px #ff0000); }
+}
+
+.skill-cooldown-bar {
+    height: 4px;
+    background-color: #4b0082;
+    transition: width 0.3s linear;
+}
+
+.monster-icon {
+    font-size: 10rem;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+.boss-icon {
+    font-size: 12rem;
+    color: #ff0000;
+    text-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 0 0 25px rgba(255, 0, 0, 0.6);
+}
+
+#notification-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.notification {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: white;
+    min-width: 250px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slide-in 0.5s forwards, slide-out 0.5s 2.5s forwards;
+}
+.notification.info { background-color: #2563eb; }
+.notification.success { background-color: #16a34a; }
+.notification.error { background-color: #dc2626; }
+
+@keyframes slide-in {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slide-out {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+.screen-effect-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.screen-effect-overlay.firestorm {
+    background: radial-gradient(circle, rgba(255,100,0,0.5) 0%, rgba(255,0,0,0) 70%);
+    animation: firestorm-pulse 0.5s 2;
+}
+@keyframes firestorm-pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.8; } }
+
+.screen-effect-overlay.gold-rush {
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+.screen-effect-overlay.rage-mode {
+    background-color: rgba(255, 0, 0, 0.1);
+    animation: rage-shake 0.1s infinite;
+}
+@keyframes rage-shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, 1px); } }
+
+#particle-container {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+.particle {
+    position: absolute;
+    animation: fall 3s linear forwards;
+    font-size: 1.5rem;
+}
+@keyframes fall { from { top: -10%; opacity: 1; } to { top: 110%; opacity: 0; } }
