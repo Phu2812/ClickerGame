@@ -1188,4 +1188,4 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
-}
+
