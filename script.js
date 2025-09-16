@@ -702,7 +702,6 @@ function renderUpgradeCard(upgrade, container) {
     let description = upgrade.description;
     let extraInfo = '';
     let levelDisplay = `Cấp: ${currentLevel}`;
-    // Nếu có maxLevel hữu hạn, hiển thị theo kiểu X/Y
     if (maxLevel !== Infinity) {
         levelDisplay = `Cấp: ${currentLevel} / ${maxLevel}`;
     }
@@ -741,49 +740,69 @@ function renderUpgradeCard(upgrade, container) {
                 extraInfo = `<p class="text-sm text-gray-400">Tỉ lệ hiện tại: ${currentLevel * 5}%</p>`;
                 nextLevelInfo = isMaxLevel ? `Đã đạt tối đa` : `Cấp tiếp theo: ${ (currentLevel + 1) * 5}%`;
                 break;
+            
+            // LOGIC MỚI CHO CÁC NÂNG CẤP NGUYÊN TỐ
             case 'fire-click':
                 if (currentLevel > 0) {
                     const currentMultiplier = (upgrade.damageRatio + (currentLevel - 1) * upgrade.damageScale) * 100;
                     extraInfo = `<p class="text-sm text-gray-400">Hệ số đốt hiện tại: ${currentMultiplier.toFixed(0)}%</p>`;
+                    nextLevelInfo = isMaxLevel ? 'Đã đạt tối đa' : `Cấp tiếp theo: ${((upgrade.damageRatio + currentLevel * upgrade.damageScale) * 100).toFixed(0)}%`;
+                } else {
+                    const nextMultiplier = (upgrade.damageRatio * 100);
+                    nextLevelInfo = `Mở khóa: Gây hiệu ứng đốt ${nextMultiplier.toFixed(0)}% DMG/tick`;
                 }
-                nextLevelInfo = isMaxLevel ? 'Đã đạt tối đa' : `Cấp tiếp theo: ${((upgrade.damageRatio + currentLevel * upgrade.damageScale) * 100).toFixed(0)}%`;
                 break;
             case 'poison-click':
                 if (currentLevel > 0) {
                     const currentDmg = ((upgrade.damageRatio + (currentLevel - 1) * upgrade.damageScale) * 100).toFixed(1);
                     extraInfo = `<p class="text-sm text-gray-400">Sát thương độc: ${currentDmg}% HP/giây</p>`;
+                } else {
+                    const nextDmg = (upgrade.damageRatio * 100).toFixed(1);
+                    nextLevelInfo = `Mở khóa: Gây độc ${nextDmg}% HP tối đa/giây`;
                 }
-                nextLevelInfo = isMaxLevel ? 'Đã đạt tối đa' : `Cấp tiếp theo: ${((upgrade.damageRatio + currentLevel * upgrade.damageScale) * 100).toFixed(1)}% HP/giây`;
+                if (!isMaxLevel && currentLevel > 0) {
+                    const nextDmg = ((upgrade.damageRatio + currentLevel * upgrade.damageScale) * 100).toFixed(1);
+                    nextLevelInfo = `Cấp tiếp theo: ${nextDmg}% HP/giây`;
+                } else if(isMaxLevel) {
+                    nextLevelInfo = 'Đã đạt tối đa';
+                }
                 break;
             case 'lightning-click':
                 const maxHits = 5 + Math.floor(gameState.level / 50);
                 if (currentLevel > 0) {
                     extraInfo = `<p class="text-sm text-gray-400">Số đòn đánh: ${upgrade.minHits[currentLevel - 1]}-${maxHits}</p>`;
+                } else {
+                    nextLevelInfo = `Mở khóa: Tạo ra ${upgrade.minHits[0]}-${maxHits} tia sét.`;
                 }
-                nextLevelInfo = isMaxLevel ? 'Đã đạt tối đa' : `Cấp tiếp theo: ${upgrade.minHits[currentLevel]}-${maxHits} đòn`;
+                if (!isMaxLevel && currentLevel > 0) {
+                    nextLevelInfo = `Cấp tiếp theo: ${upgrade.minHits[currentLevel]}-${maxHits} đòn`;
+                } else if (isMaxLevel) {
+                    nextLevelInfo = 'Đã đạt tối đa';
+                }
                 break;
             case 'ice-click':
                 if (currentLevel > 0) {
                     const effect = upgrade.effects[currentLevel - 1];
                     extraInfo = `<p class="text-sm text-gray-400">Hiện tại: ${effect.chance*100}% tỉ lệ, +${effect.buff*100}% buff</p>`;
+                } else {
+                    const nextEffect = upgrade.effects[0];
+                    nextLevelInfo = `Mở khóa: ${nextEffect.chance*100}% tỉ lệ đóng băng, +${nextEffect.buff*100}% buff DPS.`;
                 }
-                if (!isMaxLevel) {
+                if (!isMaxLevel && currentLevel > 0) {
                    const nextEffect = upgrade.effects[currentLevel];
                    nextLevelInfo = `Cấp tiếp theo: ${nextEffect.chance*100}% tỉ lệ, +${nextEffect.buff*100}% buff`;
-                } else { nextLevelInfo = 'Đã đạt tối đa'; }
+                } else if(isMaxLevel) { 
+                    nextLevelInfo = 'Đã đạt tối đa';
+                }
                 break;
+
             case 'gold-multiplier':
                 extraInfo = `<p class="text-sm text-gray-400">Bonus hiện tại: +${currentLevel * 5}% vàng</p>`;
                 nextLevelInfo = isMaxLevel ? `Đã đạt tối đa` : `Tiếp theo: +${(currentLevel + 1) * 5}%`;
                 break;
-            case 'boss-loot': // SỬA LỖI HIỂN THỊ TẠI ĐÂY
-                levelDisplay = `Cấp: ${currentLevel} / ${maxLevel}`;
+            case 'boss-loot':
                 extraInfo = `<p class="text-sm text-gray-400">Gem nhận thêm: +${currentLevel}</p>`;
-                if (isMaxLevel) {
-                    nextLevelInfo = 'Đã đạt cấp tối đa';
-                } else {
-                    nextLevelInfo = `Cấp tiếp theo: +${currentLevel + 1} gem`;
-                }
+                nextLevelInfo = isMaxLevel ? 'Đã đạt cấp tối đa' : `Cấp tiếp theo: +${currentLevel + 1} gem`;
                 break;
             case 'treasure-hunter-eco':
                 levelDisplay = `Cấp: ${currentLevel}`;
@@ -797,6 +816,7 @@ function renderUpgradeCard(upgrade, container) {
         const cooldownLeft = gameState.skillCooldowns[upgrade.id] || 0;
         const isDisabled = cooldownLeft > 0 || currentLevel === 0;
         const buttonSkillClass = isDisabled ? 'bg-gray-700 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500';
+        const buttonText = currentLevel > 0 ? (isDisabled ? `Hồi chiêu: ${cooldownLeft}s` : 'Sử dụng') : `Mở khóa (💰 ${currentCost.toLocaleString()})`;
 
         container.innerHTML += `
             <div class="bg-gray-800 p-4 rounded-lg flex flex-col md:flex-row items-center gap-4 relative">
@@ -807,13 +827,17 @@ function renderUpgradeCard(upgrade, container) {
                     <p class="text-sm mt-1">${levelDisplay}</p>
                 </div>
                 <div class="flex-shrink-0 w-full md:w-48">
-                    ${currentLevel > 0 ? `<button class="w-full p-3 rounded-md ${buttonSkillClass} font-bold" onclick="useSkill('${upgrade.id}')" ${isDisabled ? 'disabled' : ''}>${isDisabled ? `Hồi chiêu: ${cooldownLeft}s` : 'Sử dụng'}</button>`
-                    : `<button class="w-full p-3 rounded-md ${buttonClass} font-bold" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Mở khóa (💰 ${currentCost.toLocaleString()})</button>`}
+                    <button class="w-full p-3 rounded-md ${buttonSkillClass} font-bold" onclick="${currentLevel > 0 ? `useSkill('${upgrade.id}')` : `buyUpgrade('${upgrade.id}')`}" ${isDisabled && currentLevel > 0 ? 'disabled' : ''}>
+                        ${buttonText}
+                    </button>
                 </div>
                 ${currentLevel > 0 && cooldownLeft > 0 ? `<div class="absolute bottom-0 left-0 h-1 bg-indigo-900 rounded-b-lg w-full"><div class="bg-indigo-400 h-full rounded-b-lg" style="width: ${((upgrade.cooldown - cooldownLeft) / upgrade.cooldown) * 100}%;"></div></div>` : ''}
             </div>`;
     } else {
         const iconHtml = upgrade.upgradeIcon ? `<i class="${upgrade.upgradeIcon} mr-2"></i>` : (upgrade.icon ? `<i class="${upgrade.icon} mr-2"></i>` : '');
+        // Thay đổi nội dung nút bấm khi cấp 0
+        const buttonText = currentLevel > 0 ? levelDisplay : 'Mở khóa';
+
         container.innerHTML += `
             <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between h-full">
                 <div>
@@ -826,7 +850,7 @@ function renderUpgradeCard(upgrade, container) {
                 </div>
                 <div class="mt-4 flex items-center justify-between">
                     <span class="text-yellow-400 text-sm font-bold">${isMaxLevel ? 'Đã tối đa' : `💰 ${currentCost.toLocaleString()}`}</span>
-                    <button class="p-2 rounded-md ${buttonClass}" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>${levelDisplay}</button>
+                    <button class="p-2 rounded-md ${buttonClass}" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>${buttonText}</button>
                 </div>
             </div>`;
     }
@@ -1215,5 +1239,6 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
+
 
 
