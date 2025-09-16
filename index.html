@@ -43,6 +43,24 @@
             </div>
         </div>
 
+        <div id="skill-bar-container" class="fixed bottom-[400px] md:bottom-[384px] flex justify-center items-center gap-4 z-10">
+            <div id="skill-slot-0" class="skill-slot" onclick="activateSkillFromSlot(0)" oncontextmenu="unequipSkill(0); return false;">
+                <i class="fas fa-plus"></i>
+                <div class="skill-cooldown-overlay"></div>
+                <span class="skill-keybind">1</span>
+            </div>
+            <div id="skill-slot-1" class="skill-slot" onclick="activateSkillFromSlot(1)" oncontextmenu="unequipSkill(1); return false;">
+                <i class="fas fa-plus"></i>
+                <div class="skill-cooldown-overlay"></div>
+                <span class="skill-keybind">2</span>
+            </div>
+            <div id="skill-slot-2" class="skill-slot" onclick="activateSkillFromSlot(2)" oncontextmenu="unequipSkill(2); return false;">
+                <i class="fas fa-plus"></i>
+                <div class="skill-cooldown-overlay"></div>
+                <span class="skill-keybind">3</span>
+            </div>
+        </div>
+
         <div class="fixed bottom-0 w-full flex flex-col bg-gray-900 bg-opacity-70 p-4 pt-2 transition-transform duration-500 transform translate-y-0">
             <div class="flex justify-around mb-2">
                 <button class="tab-button p-2 text-sm md:text-base flex-1 mx-1 rounded-t-lg bg-gray-700 font-bold" onclick="showTab('upgrade')">Nâng cấp</button>
@@ -98,6 +116,15 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
+        </div>
+    </div>
+
+    <div id="equip-skill-modal" class="fixed inset-0 bg-gray-900 bg-opacity-95 hidden items-center justify-center transition-opacity duration-500 z-50">
+        <div class="p-8 bg-gray-800 rounded-lg shadow-lg text-center space-y-4">
+            <h2 class="text-2xl font-bold text-indigo-300">Chọn ô để trang bị kỹ năng</h2>
+            <div id="modal-skill-slots" class="flex justify-center items-center gap-4">
+                </div>
+            <button class="w-full mt-4 p-3 bg-red-600 rounded-lg hover:bg-red-500 transition-all" onclick="closeEquipModal()">Hủy</button>
         </div>
     </div>
 
