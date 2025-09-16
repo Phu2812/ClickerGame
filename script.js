@@ -58,7 +58,6 @@ const GAME_DATA = {
             { id: 'double-tap', name: "Double Tap", description: "Tỉ lệ tấn công 2 lần mỗi khi click.", cost: 75, type: "click", maxLevel: 20, icon: "fa-solid fa-2", category: "pure" },
             { 
                 id: 'fire-click', name: "Fire Element", 
-                // THAY ĐỔI MIÊU TẢ
                 description: "Phủ ngọn lửa ma thuật lên đòn đánh. Gây sát thương thiêu đốt liên tục, sức nóng tăng tiến theo sát thương đòn đánh và level của bạn.", 
                 cost: 200, 
                 damageRatio: 0.5, damageScale: 0.1, tickInterval: 500, duration: 3, type: "click", maxLevel: 5,
@@ -66,7 +65,6 @@ const GAME_DATA = {
             },
             { 
                 id: 'poison-click', name: "Poison Element", 
-                // THAY ĐỔI MIÊU TẢ
                 description: "Sử dụng chất độc ăn mòn. Gây sát thương độc tố dựa trên phần trăm máu tối đa của kẻ địch, cực kỳ hiệu quả với những mục tiêu trâu bò.", 
                 cost: 250, 
                 damageRatio: 0.01, damageScale: 0.002, tickInterval: 1000, duration: 5, type: "click", maxLevel: 6,
@@ -74,7 +72,6 @@ const GAME_DATA = {
             },
             { 
                 id: 'lightning-click', name: "Lightning Element", 
-                // THAY ĐỔI MIÊU TẢ
                 description: "Tích tụ năng lượng bão tố. Mỗi đòn đánh có 15% tỉ lệ triệu hồi một cơn mưa sét. Càng ở level cao, cơn bão càng lớn với nhiều tia sét hơn.", 
                 cost: 200, 
                 damageRatio: 0.8, minHits: [1, 2, 3, 4, 5], maxHits: 5, type: "click", maxLevel: 5,
@@ -82,7 +79,6 @@ const GAME_DATA = {
             },
             {
                 id: 'ice-click', name: "Ice Element", 
-                // THAY ĐỔI MIÊU TẢ
                 description: "Tụ hợp khí lạnh. Đòn đánh có tỉ lệ đóng băng kẻ địch trong 5 giây, khiến chúng trở nên脆弱. Toàn bộ đồng minh DPS sẽ gây sát thương cộng thêm cực lớn lên mục tiêu bị đóng băng.", 
                 cost: 300,
                 effects: [
@@ -92,57 +88,56 @@ const GAME_DATA = {
                 ], type: "click", maxLevel: 5, icon: "fa-solid fa-snowflake", category: "elemental"
             }
         ],
-            // ĐOẠN MÃ MỚI (thay thế cho toàn bộ mảng upgrades.dps)
-            dps: [
-                { 
-                    id: 'swordsman', name: "Hiệp sĩ", description: "Sát thương ổn định, toàn diện.", cost: 15, type: "dps", 
-                    attackSpeed: 1000, icon: "⚔️", color: "damage-number-swordsman", upgradeIcon: "fa-solid fa-shield-halved", maxLevel: 10,
-                    levelStats: [
-                        { level: 1, damage: 15 }, { level: 2, damage: 25 }, { level: 3, damage: 38 }, { level: 4, damage: 55 }, { level: 5, damage: 75 },
-                        { level: 6, damage: 100 }, { level: 7, damage: 135 }, { level: 8, damage: 180 }, { level: 9, damage: 240 }, { level: 10, damage: 300 },
-                    ]
-                },
-                { 
-                    id: 'mage', name: "Pháp sư", description: "Gây sát thương đốt cực mạnh theo thời gian.", cost: 30, type: "dps",
-                    attackSpeed: 1500, icon: "🧙‍♂️", color: "damage-number-mage", upgradeIcon: "fa-solid fa-hat-wizard", maxLevel: 10,
-                    levelStats: [
-                        { level: 1, damage: 5, dotMultiplier: 0.3 }, { level: 2, damage: 7, dotMultiplier: 0.4 }, { level: 3, damage: 9, dotMultiplier: 0.5 }, 
-                        { level: 4, damage: 11, dotMultiplier: 0.6 }, { level: 5, damage: 13, dotMultiplier: 0.75 }, { level: 6, damage: 15, dotMultiplier: 0.9 }, 
-                        { level: 7, damage: 17, dotMultiplier: 1.1 }, { level: 8, damage: 19, dotMultiplier: 1.3 }, { level: 9, damage: 21, dotMultiplier: 1.5 }, 
-                        { level: 10, damage: 25, dotMultiplier: 1.8 },
-                    ]
-                },
-                { 
-                    id: 'archer', name: "Cung thủ", description: "Tốc độ tấn công tăng theo level người chơi.", cost: 25, type: "dps", 
-                    attackSpeed: 500, icon: "🏹", color: "damage-number-archer", upgradeIcon: "fa-solid fa-bullseye", maxLevel: 10,
-                    levelStats: [
-                        { level: 1, damage: 8 }, { level: 2, damage: 13 }, { level: 3, damage: 20 }, { level: 4, damage: 29 }, { level: 5, damage: 40 },
-                        { level: 6, damage: 55 }, { level: 7, damage: 75 }, { level: 8, damage: 100 }, { level: 9, damage: 135 }, { level: 10, damage: 180 },
-                    ]
-                },
-                { 
-                    id: 'treasure-hunter', name: "Thợ săn tiền thưởng", description: "Lượng vàng rơi tăng theo level người chơi.", cost: 50, type: "dps",
-                    attackSpeed: 800, icon: "🗡️", color: "damage-number-hunter", upgradeIcon: "fa-solid fa-sack-dollar", maxLevel: 10,
-                    levelStats: [
-                        { level: 1, damage: 5, goldAmount: 10 }, { level: 2, damage: 8, goldAmount: 15 },
-                        { level: 3, damage: 12, goldAmount: 22 }, { level: 4, damage: 17, goldAmount: 30 },
-                        { level: 5, damage: 23, goldAmount: 40 }, { level: 6, damage: 30, goldAmount: 55 },
-                        { level: 7, damage: 40, goldAmount: 75 }, { level: 8, damage: 55, goldAmount: 100 },
-                        { level: 9, damage: 75, goldAmount: 130 }, { level: 10, damage: 100, goldAmount: 170 },
-                    ]
-                },
-                { 
-                    id: 'pet', name: "Pet", description: "Buff cực mạnh cho đồng đội ở cấp cao.", cost: 100, type: "dps", maxLevel: 5,
-                    attackSpeed: 2000, icon: "🐲", color: "damage-number-pet", upgradeIcon: "fa-solid fa-dragon",
-                    levelStats: [
-                        { level: 1, damage: 20, buff: { damage: 0.1, attackSpeed: 0.05 } },
-                        { level: 2, damage: 40, buff: { damage: 0.15, attackSpeed: 0.08 } },
-                        { level: 3, damage: 70, buff: { damage: 0.25, attackSpeed: 0.12 } },
-                        { level: 4, damage: 120, buff: { damage: 0.4, attackSpeed: 0.18 } },
-                        { level: 5, damage: 200, buff: { damage: 0.6, attackSpeed: 0.25 } },
-                    ]
-                },
-            ],
+        dps: [
+            { 
+                id: 'swordsman', name: "Hiệp sĩ", description: "Sát thương ổn định, toàn diện.", cost: 15, type: "dps", 
+                attackSpeed: 1000, icon: "⚔️", color: "damage-number-swordsman", upgradeIcon: "fa-solid fa-shield-halved", maxLevel: 10,
+                levelStats: [
+                    { level: 1, damage: 15 }, { level: 2, damage: 25 }, { level: 3, damage: 38 }, { level: 4, damage: 55 }, { level: 5, damage: 75 },
+                    { level: 6, damage: 100 }, { level: 7, damage: 135 }, { level: 8, damage: 180 }, { level: 9, damage: 240 }, { level: 10, damage: 300 },
+                ]
+            },
+            { 
+                id: 'mage', name: "Pháp sư", description: "Gây sát thương đốt cực mạnh theo thời gian.", cost: 30, type: "dps",
+                attackSpeed: 1500, icon: "🧙‍♂️", color: "damage-number-mage", upgradeIcon: "fa-solid fa-hat-wizard", maxLevel: 10,
+                levelStats: [
+                    { level: 1, damage: 5, dotMultiplier: 0.3 }, { level: 2, damage: 7, dotMultiplier: 0.4 }, { level: 3, damage: 9, dotMultiplier: 0.5 }, 
+                    { level: 4, damage: 11, dotMultiplier: 0.6 }, { level: 5, damage: 13, dotMultiplier: 0.75 }, { level: 6, damage: 15, dotMultiplier: 0.9 }, 
+                    { level: 7, damage: 17, dotMultiplier: 1.1 }, { level: 8, damage: 19, dotMultiplier: 1.3 }, { level: 9, damage: 21, dotMultiplier: 1.5 }, 
+                    { level: 10, damage: 25, dotMultiplier: 1.8 },
+                ]
+            },
+            { 
+                id: 'archer', name: "Cung thủ", description: "Tốc độ tấn công tăng theo level người chơi.", cost: 25, type: "dps", 
+                attackSpeed: 500, icon: "🏹", color: "damage-number-archer", upgradeIcon: "fa-solid fa-bullseye", maxLevel: 10,
+                levelStats: [
+                    { level: 1, damage: 8 }, { level: 2, damage: 13 }, { level: 3, damage: 20 }, { level: 4, damage: 29 }, { level: 5, damage: 40 },
+                    { level: 6, damage: 55 }, { level: 7, damage: 75 }, { level: 8, damage: 100 }, { level: 9, damage: 135 }, { level: 10, damage: 180 },
+                ]
+            },
+            { 
+                id: 'treasure-hunter', name: "Thợ săn tiền thưởng", description: "Lượng vàng rơi tăng theo level người chơi.", cost: 50, type: "dps",
+                attackSpeed: 800, icon: "🗡️", color: "damage-number-hunter", upgradeIcon: "fa-solid fa-sack-dollar", maxLevel: 10,
+                levelStats: [
+                    { level: 1, damage: 5, goldAmount: 10 }, { level: 2, damage: 8, goldAmount: 15 },
+                    { level: 3, damage: 12, goldAmount: 22 }, { level: 4, damage: 17, goldAmount: 30 },
+                    { level: 5, damage: 23, goldAmount: 40 }, { level: 6, damage: 30, goldAmount: 55 },
+                    { level: 7, damage: 40, goldAmount: 75 }, { level: 8, damage: 55, goldAmount: 100 },
+                    { level: 9, damage: 75, goldAmount: 130 }, { level: 10, damage: 100, goldAmount: 170 },
+                ]
+            },
+            { 
+                id: 'pet', name: "Pet", description: "Buff cực mạnh cho đồng đội ở cấp cao.", cost: 100, type: "dps", maxLevel: 5,
+                attackSpeed: 2000, icon: "🐲", color: "damage-number-pet", upgradeIcon: "fa-solid fa-dragon",
+                levelStats: [
+                    { level: 1, damage: 20, buff: { damage: 0.1, attackSpeed: 0.05 } },
+                    { level: 2, damage: 40, buff: { damage: 0.15, attackSpeed: 0.08 } },
+                    { level: 3, damage: 70, buff: { damage: 0.25, attackSpeed: 0.12 } },
+                    { level: 4, damage: 120, buff: { damage: 0.4, attackSpeed: 0.18 } },
+                    { level: 5, damage: 200, buff: { damage: 0.6, attackSpeed: 0.25 } },
+                ]
+            },
+        ],
         economy: [
             { id: 'gold-multiplier', name: "Gold Multiplier", description: "Tăng % vàng rơi", cost: 20, effect: 0.05, type: "economy", maxLevel: 10, icon: "fa-solid fa-percent" },
             { id: 'boss-loot', name: "Boss Loot", description: "Thêm rơi gem", cost: 200, effect: 1, type: "economy", maxLevel: Infinity, icon: "fa-solid fa-gem" },
@@ -173,7 +168,6 @@ const monsterName = document.getElementById('monster-name');
 const levelDisplay = document.getElementById('level-display');
 const goldDisplay = document.getElementById('gold-display');
 const gemDisplay = document.getElementById('gem-display');
-const dpsDisplay = document.getElementById('dps-display');
 const clickDamageDisplay = document.getElementById('click-damage-display');
 const upgradeTabContainer = document.getElementById('upgrade-tab');
 const albumTabContainer = document.getElementById('album-tab');
@@ -363,7 +357,6 @@ function handleMonsterClick(event) {
     saveGame();
 }
 
-// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm applyDot)
 function applyDot(type, baseDamage, level) {
     let dotData;
     let dpsItemData; // Dùng cho Mage DOT
@@ -503,7 +496,7 @@ function buyUpgrade(id) {
         
         recalculateStats();
         updateUI();
-        renderUpgrades();
+        // renderUpgrades(); // Đã được gọi trong updateUI
         startDpsTimers();
         saveGame();
     } else {
@@ -527,7 +520,7 @@ function buyGemUpgrade(id) {
         
         recalculateStats();
         updateUI();
-        renderGemUpgrades();
+        // renderGemUpgrades(); // Đã được gọi trong updateUI
         saveGame();
     } else {
         showNotification("Không đủ Gem!", "error");
@@ -627,7 +620,7 @@ function updateUI() {
     healthBarFill.style.width = `${Math.max(0, hpPercentage)}%`;
     hpText.textContent = `${Math.max(0, Math.round(gameState.currentMonsterHP)).toLocaleString()} / ${Math.round(gameState.maxMonsterHP).toLocaleString()}`;
 
-    renderUpgrades(); // <--- THÊM DÒNG NÀY VÀO ĐÂY
+    renderUpgrades();
     renderGemUpgrades();
 }
 
@@ -640,17 +633,42 @@ function renderUpgrades() {
     };
 
     for (const type in containers) {
-        containers[type].innerHTML = '';
-        if (type === 'click') {
-            containers[type].innerHTML += `<h2 class="col-span-1 md:col-span-2 text-xl font-bold text-indigo-300 border-b-2 border-indigo-500 pb-2 mb-4">Click Thuần</h2>`;
-            GAME_DATA.upgrades.click.filter(u => u.category === 'pure').forEach(upgrade => renderUpgradeCard(upgrade, containers[type]));
-            
-            containers[type].innerHTML += `<h2 class="col-span-1 md:col-span-2 text-xl font-bold text-indigo-300 border-b-2 border-indigo-500 pb-2 mb-4 mt-6">Nguyên Tố</h2>`;
-            GAME_DATA.upgrades.click.filter(u => u.category === 'elemental').forEach(upgrade => renderUpgradeCard(upgrade, containers[type]));
-        } else {
-            GAME_DATA.upgrades[type].forEach(upgrade => renderUpgradeCard(upgrade, containers[type]));
+        if (containers[type]) {
+            containers[type].innerHTML = '';
+            if (type === 'click') {
+                containers[type].innerHTML += `<h2 class="col-span-1 md:col-span-2 text-xl font-bold text-indigo-300 border-b-2 border-indigo-500 pb-2 mb-4">Click Thuần</h2>`;
+                GAME_DATA.upgrades.click.filter(u => u.category === 'pure').forEach(upgrade => renderUpgradeCard(upgrade, containers[type]));
+                
+                containers[type].innerHTML += `<h2 class="col-span-1 md:col-span-2 text-xl font-bold text-indigo-300 border-b-2 border-indigo-500 pb-2 mb-4 mt-6">Nguyên Tố</h2>`;
+                GAME_DATA.upgrades.click.filter(u => u.category === 'elemental').forEach(upgrade => renderUpgradeCard(upgrade, containers[type]));
+            } else {
+                GAME_DATA.upgrades[type].forEach(upgrade => renderUpgradeCard(upgrade, containers[type]));
+            }
         }
     }
+}
+
+function calculateDpsDamage(dpsItem, dpsLevel, currentStats) {
+    if (!dpsLevel || !currentStats) return 0;
+    let baseDamage = 0;
+    switch (dpsItem.id) {
+        case 'swordsman': 
+            baseDamage = (currentStats.damage + dpsLevel * 3) * (1 + gameState.damagePerClick / 100) * (1 + gameState.level / 50); 
+            break;
+        case 'archer': 
+            baseDamage = currentStats.damage + (dpsLevel * 2) + (gameState.level * 0.3); 
+            break;
+        case 'mage': 
+            baseDamage = currentStats.damage + (gameState.level * 0.5); 
+            break;
+        case 'treasure-hunter': 
+            baseDamage = currentStats.damage + (gameState.level * 0.2); 
+            break;
+        case 'pet': 
+            baseDamage = currentStats.damage * (1 + gameState.level / 40); 
+            break;
+    }
+    return baseDamage;
 }
 
 function renderUpgradeCard(upgrade, container) {
@@ -667,7 +685,6 @@ function renderUpgradeCard(upgrade, container) {
     let levelDisplay = `Cấp: ${currentLevel}`;
     let nextLevelInfo = '';
 
-    // Khối logic hiển thị thông tin chi tiết cho từng loại nâng cấp
     if (type === 'dps') {
         levelDisplay = `Cấp: ${currentLevel} / ${maxLevel}`;
         if (currentLevel > 0) {
@@ -780,7 +797,7 @@ function renderUpgradeCard(upgrade, container) {
                 </div>
                 <div class="flex-shrink-0 w-full md:w-48">
                     ${currentLevel > 0 ? `<button class="w-full p-3 rounded-md ${buttonSkillClass} font-bold" onclick="useSkill('${upgrade.id}')" ${isDisabled ? 'disabled' : ''}>${isDisabled ? `Hồi chiêu: ${cooldownLeft}s` : 'Sử dụng'}</button>`
-                    : `<button class="w-full p-3 rounded-md ${buttonClass} font-bold" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Mở khóa (💰 ${currentCost})</button>`}
+                    : `<button class="w-full p-3 rounded-md ${buttonClass} font-bold" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Mở khóa (💰 ${currentCost.toLocaleString()})</button>`}
                 </div>
                 ${currentLevel > 0 && cooldownLeft > 0 ? `<div class="absolute bottom-0 left-0 h-1 bg-indigo-900 rounded-b-lg w-full"><div class="bg-indigo-400 h-full rounded-b-lg" style="width: ${((upgrade.cooldown - cooldownLeft) / upgrade.cooldown) * 100}%;"></div></div>` : ''}
             </div>`;
@@ -804,139 +821,46 @@ function renderUpgradeCard(upgrade, container) {
     }
 }
 
-// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm renderUpgradeCard và thêm hàm mới)
-function calculateDpsDamage(dpsItem, dpsLevel, currentStats) {
-    if (!dpsLevel || !currentStats) return 0;
-    let baseDamage = 0;
-    switch (dpsItem.id) {
-        case 'swordsman': 
-            baseDamage = (currentStats.damage + dpsLevel * 3) * (1 + gameState.damagePerClick / 100) * (1 + gameState.level / 50); 
-            break;
-        case 'archer': 
-            baseDamage = currentStats.damage + (dpsLevel * 2) + (gameState.level * 0.3); 
-            break;
-        case 'mage': 
-            baseDamage = currentStats.damage + (gameState.level * 0.5); 
-            break;
-        case 'treasure-hunter': 
-            baseDamage = currentStats.damage + (gameState.level * 0.2); 
-            break;
-        case 'pet': 
-            baseDamage = currentStats.damage * (1 + gameState.level / 40); 
-            break;
-    }
-    return baseDamage;
+function renderGemUpgrades() {
+    gemUpgradesContainer.innerHTML = '';
+    GAME_DATA.gemUpgrades.forEach(upgrade => {
+        const currentLevel = gameState.gemUpgrades[upgrade.id]?.level || 0;
+        const currentCost = upgrade.cost + currentLevel;
+        const canAfford = gameState.gems >= currentCost;
+        const buttonClass = canAfford ? 'bg-cyan-600 hover:bg-cyan-500' : 'bg-gray-700 cursor-not-allowed';
+        
+        let bonus = upgrade.effect * 100;
+        const currentBonus = (currentLevel * bonus).toFixed(1);
+        const nextBonus = ((currentLevel + 1) * bonus).toFixed(1);
+
+        gemUpgradesContainer.innerHTML += `
+            <div class="bg-gray-800 p-4 rounded-lg flex items-center gap-4">
+                <div class="text-cyan-400 text-4xl w-16 text-center">
+                    <i class="${upgrade.icon}"></i>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-bold text-lg text-cyan-300">${upgrade.name}</h3>
+                    <p class="text-sm text-gray-300">${upgrade.description}</p>
+                    <p class="text-sm mt-2">Chỉ số hiện tại: Cấp ${currentLevel}, Bonus: +${currentBonus}%</p>
+                    <p class="text-sm text-yellow-300">Cấp tiếp theo: Bonus +${nextBonus}%</p>
+                </div>
+                <div class="flex-shrink-0">
+                     <button class="p-3 rounded-md ${buttonClass} font-bold flex flex-col items-center" onclick="buyGemUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>
+                        <span>Nâng Cấp</span>
+                        <span class="text-xs">💎 ${currentCost}</span>
+                     </button>
+                </div>
+            </div>
+        `;
+    });
 }
 
-function renderUpgradeCard(upgrade, container) {
-    const type = upgrade.type;
-    const currentLevel = gameState.upgrades[upgrade.id]?.level || 0;
-    const maxLevel = upgrade.maxLevel || Infinity;
-    const isMaxLevel = currentLevel >= maxLevel;
-    const currentCost = Math.round(upgrade.cost * Math.pow(1.15, currentLevel));
-    const canAfford = gameState.gold >= currentCost && !isMaxLevel;
-    const buttonClass = canAfford ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-gray-700 cursor-not-allowed';
-    
-    let description = upgrade.description;
-    let extraInfo = '';
-    let levelDisplay = `Cấp: ${currentLevel}`;
-    let nextLevelInfo = '';
-
-    if (upgrade.type === 'dps') {
-        levelDisplay = `Cấp: ${currentLevel} / ${maxLevel}`;
-        if (currentLevel > 0) {
-            const currentStats = upgrade.levelStats[currentLevel - 1];
-            let currentDmg = Math.round(calculateDpsDamage(upgrade, currentLevel, currentStats));
-            extraInfo += `<p class="text-sm text-gray-400">Chỉ số hiện tại: ${currentDmg.toLocaleString()} sát thương</p>`;
-        }
-        if (!isMaxLevel) {
-            const nextStats = upgrade.levelStats[currentLevel];
-            let nextDmg = Math.round(calculateDpsDamage(upgrade, currentLevel + 1, nextStats));
-            nextLevelInfo = `Cấp tiếp theo: ${nextDmg.toLocaleString()} sát thương`;
-        } else {
-            nextLevelInfo = 'Đã đạt cấp tối đa';
-        }
-    } else {
-         switch (upgrade.id) {
-            case 'power-click': nextLevelInfo = `DMG +1`; break;
-            case 'critical-chance': levelDisplay = `Tỉ lệ: ${currentLevel}%`; nextLevelInfo = isMaxLevel ? `Tối đa` : `Tỉ lệ +1%`; break;
-            case 'critical-damage': levelDisplay = `Bonus: +${currentLevel * 10}%`; nextLevelInfo = `Bonus +10%`; break;
-            case 'double-tap': levelDisplay = `Tỉ lệ: ${currentLevel * 5}%`; nextLevelInfo = isMaxLevel ? `Tối đa` : `Tỉ lệ +5%`; break;
-            case 'fire-click':
-                if (currentLevel > 0) { levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`; nextLevelInfo = isMaxLevel ? 'Tối đa' : `Tăng sức mạnh hiệu ứng`; }
-                else nextLevelInfo = "Mở khóa hiệu ứng Đốt";
-                break;
-            case 'poison-click':
-                 if (currentLevel > 0) { levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`; nextLevelInfo = isMaxLevel ? 'Tối đa' : `Tăng % sát thương`; }
-                else nextLevelInfo = "Mở khóa hiệu ứng Độc";
-                break;
-            case 'lightning-click':
-                 if (currentLevel > 0) { levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`; nextLevelInfo = isMaxLevel ? 'Tối đa' : `Tăng số hit tối thiểu`; }
-                else nextLevelInfo = "Mở khóa hiệu ứng Sét";
-                break;
-            case 'ice-click':
-                if (currentLevel > 0) {
-                    levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`;
-                    const effect = upgrade.effects[currentLevel - 1];
-                    extraInfo = `<p class="text-sm text-gray-400">Tỉ lệ: ${effect.chance*100}%, Buff: +${effect.buff*100}%</p>`;
-                    if (!isMaxLevel) {
-                       const nextEffect = upgrade.effects[currentLevel];
-                       nextLevelInfo = `Cấp tiếp theo: ${nextEffect.chance*100}% tỉ lệ, +${nextEffect.buff*100}% buff`;
-                    } else { nextLevelInfo = 'Tối đa'; }
-                } else { nextLevelInfo = "Mở khóa hiệu ứng Băng"; }
-                break;
-            case 'gold-multiplier':
-                const currentGoldBonus = currentLevel * 5;
-                levelDisplay = `Bonus: +${currentGoldBonus}% Vàng`;
-                nextLevelInfo = isMaxLevel ? `Tối đa` : `Tiếp theo: +${currentGoldBonus + 5}%`;
-                break;
-            case 'boss-loot': nextLevelInfo = `Tăng gem nhận từ boss`; break;
-            case 'treasure-hunter-eco': nextLevelInfo = `Tăng vàng từ Thợ Săn`; break;
-        }
-    }
-
-    if (type === 'skill') {
-        const cooldownLeft = gameState.skillCooldowns[upgrade.id] || 0;
-        const isDisabled = cooldownLeft > 0 || currentLevel === 0;
-        const buttonSkillClass = isDisabled ? 'bg-gray-700 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500';
-
-        container.innerHTML += `
-            <div class="bg-gray-800 p-4 rounded-lg flex flex-col md:flex-row items-center gap-4 relative">
-                <div class="flex-shrink-0 text-indigo-400 text-4xl w-16 text-center"><i class="${upgrade.icon}"></i></div>
-                <div class="flex-grow text-center md:text-left">
-                    <h3 class="font-bold text-lg text-indigo-400">${upgrade.name}</h3>
-                    <p class="text-sm text-gray-400">${description}</p>
-                    <p class="text-sm mt-1">${levelDisplay}</p>
-                </div>
-                <div class="flex-shrink-0 w-full md:w-48">
-                    ${currentLevel > 0 ? `<button class="w-full p-3 rounded-md ${buttonSkillClass} font-bold" onclick="useSkill('${upgrade.id}')" ${isDisabled ? 'disabled' : ''}>${isDisabled ? `Hồi chiêu: ${cooldownLeft}s` : 'Sử dụng'}</button>`
-                    : `<button class="w-full p-3 rounded-md ${buttonClass} font-bold" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Mở khóa (💰 ${currentCost})</button>`}
-                </div>
-                ${currentLevel > 0 && cooldownLeft > 0 ? `<div class="absolute bottom-0 left-0 h-1 bg-indigo-900 rounded-b-lg w-full"><div class="bg-indigo-400 h-full rounded-b-lg" style="width: ${((upgrade.cooldown - cooldownLeft) / upgrade.cooldown) * 100}%;"></div></div>` : ''}
-            </div>`;
-    } else {
-        const iconHtml = upgrade.upgradeIcon ? `<i class="${upgrade.upgradeIcon} mr-2"></i>` : (upgrade.icon ? `<i class="${upgrade.icon} mr-2"></i>` : '');
-        container.innerHTML += `
-            <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between">
-                <div>
-                    <h3 class="font-bold text-lg text-indigo-400">${iconHtml}${upgrade.name}</h3>
-                    <p class="text-sm text-gray-400 mt-1">${description}</p>
-                    ${extraInfo}
-                    <p class="text-sm mt-2">${levelDisplay}</p>
-                    <p class="text-sm text-yellow-300">${nextLevelInfo}</p>
-                </div>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-yellow-400 text-sm font-bold">${isMaxLevel ? 'Đã tối đa' : `💰 ${currentCost}`}</span>
-                    <button class="p-2 rounded-md ${buttonClass}" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Nâng cấp</button>
-                </div>
-            </div>`;
-    }
-}
 const rarityMap = {
     'Common': 'text-gray-400', 'Rare': 'text-blue-400', 'Epic': 'text-purple-400', 'Legendary': 'text-yellow-400'
 };
 
 function renderAlbums() {
+    if(!albumGrid) return;
     albumGrid.innerHTML = '';
     const filteredAlbums = currentAlbumFilter === 'all' 
         ? GAME_DATA.albums 
@@ -1053,7 +977,6 @@ function createParticle(content) {
 
 // --- Timers and Intervals ---
 
-// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm startDpsTimers)
 function startDpsTimers() {
     for (const id in dpsIntervals) {
         clearInterval(dpsIntervals[id]);
@@ -1079,7 +1002,7 @@ function startDpsTimers() {
             const maxLevelForStats = dpsItem.levelStats.length;
             const currentStats = dpsItem.levelStats[Math.min(dpsLevel, maxLevelForStats) - 1];
             
-            let baseDamage = calculateDpsDamage(dpsItem, dpsLevel, currentStats); // Sử dụng hàm tính toán mới
+            let baseDamage = calculateDpsDamage(dpsItem, dpsLevel, currentStats);
             let finalSpeed = dpsItem.attackSpeed;
 
             // Áp dụng bonus tốc độ đánh theo level người chơi
@@ -1111,13 +1034,11 @@ function startDpsTimers() {
     });
 }
 
-// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm applyDpsDamage)
 function applyDpsDamage(dpsItem, finalDamage, currentStats) {
     let type = dpsItem.id;
 
     // Xử lý hiệu ứng đặc biệt của Mage (kích hoạt DOT)
     if (type === 'mage') {
-        // Tỉ lệ kích hoạt DOT của Mage, có thể tăng theo cấp nếu muốn
         const dotProcChance = 0.25; 
         if (Math.random() < dotProcChance && !gameState.dot.mage.active) {
             applyDot('mage', finalDamage, currentStats.level);
@@ -1267,9 +1188,4 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
-
-
-
-
-
-
+}
