@@ -116,14 +116,24 @@ const GAME_DATA = {
                 ]
             },
             { 
-                id: 'treasure-hunter', name: "Thợ săn tiền thưởng", description: "Lượng vàng rơi tăng theo level người chơi.", cost: 50, type: "dps",
-                attackSpeed: 800, icon: "🗡️", color: "damage-number-hunter", upgradeIcon: "fa-solid fa-sack-dollar", maxLevel: 10,
+                id: 'treasure-hunter', 
+                name: "Thợ săn tiền thưởng", 
+                // Miêu tả mới
+                description: "Mỗi đòn đánh có cơ hội rơi ra Vàng bằng 10% sát thương gây ra.", 
+                cost: 50, 
+                type: "dps",
+                attackSpeed: 800, 
+                icon: "🗡️", 
+                color: "damage-number-hunter", 
+                upgradeIcon: "fa-solid fa-sack-dollar", 
+                maxLevel: 10,
+                // Xóa goldAmount khỏi levelStats
                 levelStats: [
-                    { level: 1, damage: 5, goldAmount: 10 }, { level: 2, damage: 8, goldAmount: 15 },
-                    { level: 3, damage: 12, goldAmount: 22 }, { level: 4, damage: 17, goldAmount: 30 },
-                    { level: 5, damage: 23, goldAmount: 40 }, { level: 6, damage: 30, goldAmount: 55 },
-                    { level: 7, damage: 40, goldAmount: 75 }, { level: 8, damage: 55, goldAmount: 100 },
-                    { level: 9, damage: 75, goldAmount: 130 }, { level: 10, damage: 100, goldAmount: 170 },
+                    { level: 1, damage: 5 }, { level: 2, damage: 8 },
+                    { level: 3, damage: 12 }, { level: 4, damage: 17 },
+                    { level: 5, damage: 23 }, { level: 6, damage: 30 },
+                    { level: 7, damage: 40 }, { level: 8, damage: 55 },
+                    { level: 9, damage: 75 }, { level: 10, damage: 100 },
                 ]
             },
             { 
@@ -140,7 +150,16 @@ const GAME_DATA = {
         ],
         economy: [
             { id: 'gold-multiplier', name: "Gold Multiplier", description: "Tăng % vàng rơi", cost: 20, effect: 0.05, type: "economy", maxLevel: 10, icon: "fa-solid fa-percent" },
-            { id: 'boss-loot', name: "Boss Loot", description: "Thêm rơi gem", cost: 200, effect: 1, type: "economy", maxLevel: Infinity, icon: "fa-solid fa-gem" },
+            { 
+                id: 'boss-loot', 
+                name: "Boss Loot", 
+                description: "Tăng lượng Gem nhận được khi đánh bại boss.", 
+                cost: 200, 
+                effect: 1, 
+                type: "economy", 
+                maxLevel: 3, // GIỚI HẠN CẤP 3
+                icon: "fa-solid fa-gem" 
+            },
             { id: 'treasure-hunter-eco', name: "Treasure Hunter", description: "Tăng rơi vàng hiếm", cost: 150, effect: 1, type: "economy", maxLevel: Infinity, icon: "fa-solid fa-treasure-chest" },
         ],
         skill: [
@@ -924,26 +943,40 @@ function displayDamageNumber(x, y, damage, type) {
     let content = Math.round(damage).toLocaleString();
     damageNumber.classList.add('damage-number');
 
-    const classMap = {
-        'crit': 'damage-number-crit', 'dot-fire': 'damage-number-dot-fire', 'dot-poison': 'damage-number-dot-poison',
-        'dot-mage': 'damage-number-dot-mage', 'lightning': 'damage-number-lightning', 'gold': 'damage-number-gold', 'gem': 'damage-number-gem',
-        'skill': 'damage-number-skill'
-    };
-    if (classMap[type]) {
-        damageNumber.classList.add(classMap[type]);
-    } else if (type.startsWith('dps-')) {
-        damageNumber.classList.add(`damage-number-${type.substring(4)}`);
-    } else { // 'click'
-        damageNumber.style.color = '#b0c4de';
-        damageNumber.style.fontSize = '1.2rem';
+    let iconHtml = ''; // Biến để chứa icon
+
+    // Gán icon dựa trên loại sát thương
+    switch(type) {
+        case 'crit': iconHtml = '💥 '; damageNumber.classList.add('damage-number-crit'); break;
+        case 'dot-fire': iconHtml = '🔥 '; damageNumber.classList.add('damage-number-dot-fire'); break;
+        case 'dot-poison': iconHtml = '💀 '; damageNumber.classList.add('damage-number-dot-poison'); break;
+        case 'dot-mage': iconHtml = '✨ '; damageNumber.classList.add('damage-number-dot-mage'); break;
+        case 'lightning': iconHtml = '⚡ '; damageNumber.classList.add('damage-number-lightning'); break;
+        case 'gold': iconHtml = '💰 '; content = `+${content}`; damageNumber.classList.add('damage-number-gold'); break;
+        case 'gem': iconHtml = '💎 '; content = `+${content}`; damageNumber.classList.add('damage-number-gem'); break;
+        case 'skill': iconHtml = '⭐ '; damageNumber.classList.add('damage-number-skill'); break;
+        case 'click':
+        default:
+            iconHtml = '🖱️ ';
+            damageNumber.style.color = '#b0c4de';
+            damageNumber.style.fontSize = '1.2rem';
+            break;
+    }
+
+    if (type.startsWith('dps-')) {
+        const dpsId = type.substring(4);
+        const dpsData = findUpgradeData(dpsId);
+        if (dpsData) iconHtml = `${dpsData.icon} `;
+        damageNumber.classList.add(`damage-number-${dpsId}`);
     }
     
+    damageNumber.innerHTML = iconHtml + content; // Luôn có icon đứng trước
+
     const randomX = (Math.random() - 0.5) * 60;
     const randomY = (Math.random() - 0.5) * 60;
     damageNumber.style.left = `calc(${x}px + ${randomX}px)`;
     damageNumber.style.top = `calc(${y}px + ${randomY}px)`;
     
-    damageNumber.textContent = content;
     document.body.appendChild(damageNumber);
     
     setTimeout(() => {
@@ -1046,9 +1079,11 @@ function applyDpsDamage(dpsItem, finalDamage, currentStats) {
     } 
     // Xử lý hiệu ứng đặc biệt của Thợ săn (kiếm vàng)
     else if (type === 'treasure-hunter') {
+        // CÔNG THỨC MỚI: 10% sát thương, tối thiểu là 1
+        const goldFromHunter = Math.max(1, Math.round(finalDamage * 0.1));
         const goldEcoBonus = (gameState.upgrades['treasure-hunter-eco']?.level || 0) * 0.1 + 1;
-        // Công thức vàng mới cho Thợ săn
-        const finalGold = (currentStats.goldAmount + gameState.level * 0.5) * goldEcoBonus;
+        const finalGold = goldFromHunter * goldEcoBonus;
+
         gameState.gold += finalGold;
         displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, Math.round(finalGold), 'gold');
     }
@@ -1188,3 +1223,4 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
+
