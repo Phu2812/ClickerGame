@@ -363,6 +363,7 @@ function handleMonsterClick(event) {
     saveGame();
 }
 
+// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm applyDot)
 function applyDot(type, baseDamage, level) {
     let dotData;
     let dpsItemData; // Dùng cho Mage DOT
@@ -391,11 +392,12 @@ function applyDot(type, baseDamage, level) {
         const finalMultiplier = fireUpgradeMultiplier + levelBonus;
         damagePerTick = Math.round(baseDamage * finalMultiplier);
     } else if (type === 'playerPoison') {
-        damagePerTick = Math.round(gameState.maxMonsterHP * (dotData.damageRatio + (level - 1) * dotData.damageScale));
+        // Sát thương độc sẽ được tính lại mỗi tick trong interval
     } else if (type === 'mage') {
         const mageLevel = gameState.upgrades['mage']?.level || 0;
         if (mageLevel > 0) {
-            const mageStats = dpsItemData.levelStats[mageLevel - 1];
+            const maxLevelForStats = dpsItemData.levelStats.length;
+            const mageStats = dpsItemData.levelStats[Math.min(mageLevel, maxLevelForStats) - 1];
             // Công thức DOT mới cho Mage
             damagePerTick = Math.round((gameState.damagePerClick * mageStats.dotMultiplier) * (1 + gameState.level / 15));
         }
@@ -755,53 +757,134 @@ function renderUpgradeCard(upgrade, container) {
     }
 }
 
+// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm renderUpgradeCard và thêm hàm mới)
 function calculateDpsDamage(dpsItem, dpsLevel, currentStats) {
     if (!dpsLevel || !currentStats) return 0;
     let baseDamage = 0;
     switch (dpsItem.id) {
-        case 'swordsman': baseDamage = (currentStats.damage + dpsLevel * 3) * (1 + gameState.damagePerClick / 100) * (1 + gameState.level / 50); break;
-        case 'archer': baseDamage = currentStats.damage + (dpsLevel * 2) + (gameState.level * 0.3); break;
-        case 'mage': baseDamage = currentStats.damage + (gameState.level * 0.5); break;
-        case 'treasure-hunter': baseDamage = currentStats.damage + (gameState.level * 0.2); break;
-        case 'pet': baseDamage = currentStats.damage * (1 + gameState.level / 40); break;
+        case 'swordsman': 
+            baseDamage = (currentStats.damage + dpsLevel * 3) * (1 + gameState.damagePerClick / 100) * (1 + gameState.level / 50); 
+            break;
+        case 'archer': 
+            baseDamage = currentStats.damage + (dpsLevel * 2) + (gameState.level * 0.3); 
+            break;
+        case 'mage': 
+            baseDamage = currentStats.damage + (gameState.level * 0.5); 
+            break;
+        case 'treasure-hunter': 
+            baseDamage = currentStats.damage + (gameState.level * 0.2); 
+            break;
+        case 'pet': 
+            baseDamage = currentStats.damage * (1 + gameState.level / 40); 
+            break;
     }
     return baseDamage;
 }
 
-function renderGemUpgrades() {
-    gemUpgradesContainer.innerHTML = '';
-    GAME_DATA.gemUpgrades.forEach(upgrade => {
-        const currentLevel = gameState.gemUpgrades[upgrade.id]?.level || 0;
-        const currentCost = upgrade.cost + currentLevel;
-        const canAfford = gameState.gems >= currentCost;
-        const buttonClass = canAfford ? 'bg-cyan-600 hover:bg-cyan-500' : 'bg-gray-700 cursor-not-allowed';
-        
-        let bonus = upgrade.effect * 100;
-        const currentBonus = (currentLevel * bonus).toFixed(1);
-        const nextBonus = ((currentLevel + 1) * bonus).toFixed(1);
+function renderUpgradeCard(upgrade, container) {
+    const type = upgrade.type;
+    const currentLevel = gameState.upgrades[upgrade.id]?.level || 0;
+    const maxLevel = upgrade.maxLevel || Infinity;
+    const isMaxLevel = currentLevel >= maxLevel;
+    const currentCost = Math.round(upgrade.cost * Math.pow(1.15, currentLevel));
+    const canAfford = gameState.gold >= currentCost && !isMaxLevel;
+    const buttonClass = canAfford ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-gray-700 cursor-not-allowed';
+    
+    let description = upgrade.description;
+    let extraInfo = '';
+    let levelDisplay = `Cấp: ${currentLevel}`;
+    let nextLevelInfo = '';
 
-        gemUpgradesContainer.innerHTML += `
-            <div class="bg-gray-800 p-4 rounded-lg flex items-center gap-4">
-                <div class="text-cyan-400 text-4xl w-16 text-center">
-                    <i class="${upgrade.icon}"></i>
+    if (upgrade.type === 'dps') {
+        levelDisplay = `Cấp: ${currentLevel} / ${maxLevel}`;
+        if (currentLevel > 0) {
+            const currentStats = upgrade.levelStats[currentLevel - 1];
+            let currentDmg = Math.round(calculateDpsDamage(upgrade, currentLevel, currentStats));
+            extraInfo += `<p class="text-sm text-gray-400">Chỉ số hiện tại: ${currentDmg.toLocaleString()} sát thương</p>`;
+        }
+        if (!isMaxLevel) {
+            const nextStats = upgrade.levelStats[currentLevel];
+            let nextDmg = Math.round(calculateDpsDamage(upgrade, currentLevel + 1, nextStats));
+            nextLevelInfo = `Cấp tiếp theo: ${nextDmg.toLocaleString()} sát thương`;
+        } else {
+            nextLevelInfo = 'Đã đạt cấp tối đa';
+        }
+    } else {
+         switch (upgrade.id) {
+            case 'power-click': nextLevelInfo = `DMG +1`; break;
+            case 'critical-chance': levelDisplay = `Tỉ lệ: ${currentLevel}%`; nextLevelInfo = isMaxLevel ? `Tối đa` : `Tỉ lệ +1%`; break;
+            case 'critical-damage': levelDisplay = `Bonus: +${currentLevel * 10}%`; nextLevelInfo = `Bonus +10%`; break;
+            case 'double-tap': levelDisplay = `Tỉ lệ: ${currentLevel * 5}%`; nextLevelInfo = isMaxLevel ? `Tối đa` : `Tỉ lệ +5%`; break;
+            case 'fire-click':
+                if (currentLevel > 0) { levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`; nextLevelInfo = isMaxLevel ? 'Tối đa' : `Tăng sức mạnh hiệu ứng`; }
+                else nextLevelInfo = "Mở khóa hiệu ứng Đốt";
+                break;
+            case 'poison-click':
+                 if (currentLevel > 0) { levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`; nextLevelInfo = isMaxLevel ? 'Tối đa' : `Tăng % sát thương`; }
+                else nextLevelInfo = "Mở khóa hiệu ứng Độc";
+                break;
+            case 'lightning-click':
+                 if (currentLevel > 0) { levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`; nextLevelInfo = isMaxLevel ? 'Tối đa' : `Tăng số hit tối thiểu`; }
+                else nextLevelInfo = "Mở khóa hiệu ứng Sét";
+                break;
+            case 'ice-click':
+                if (currentLevel > 0) {
+                    levelDisplay = `Cấp ${currentLevel}/${upgrade.maxLevel}`;
+                    const effect = upgrade.effects[currentLevel - 1];
+                    extraInfo = `<p class="text-sm text-gray-400">Tỉ lệ: ${effect.chance*100}%, Buff: +${effect.buff*100}%</p>`;
+                    if (!isMaxLevel) {
+                       const nextEffect = upgrade.effects[currentLevel];
+                       nextLevelInfo = `Cấp tiếp theo: ${nextEffect.chance*100}% tỉ lệ, +${nextEffect.buff*100}% buff`;
+                    } else { nextLevelInfo = 'Tối đa'; }
+                } else { nextLevelInfo = "Mở khóa hiệu ứng Băng"; }
+                break;
+            case 'gold-multiplier':
+                const currentGoldBonus = currentLevel * 5;
+                levelDisplay = `Bonus: +${currentGoldBonus}% Vàng`;
+                nextLevelInfo = isMaxLevel ? `Tối đa` : `Tiếp theo: +${currentGoldBonus + 5}%`;
+                break;
+            case 'boss-loot': nextLevelInfo = `Tăng gem nhận từ boss`; break;
+            case 'treasure-hunter-eco': nextLevelInfo = `Tăng vàng từ Thợ Săn`; break;
+        }
+    }
+
+    if (type === 'skill') {
+        const cooldownLeft = gameState.skillCooldowns[upgrade.id] || 0;
+        const isDisabled = cooldownLeft > 0 || currentLevel === 0;
+        const buttonSkillClass = isDisabled ? 'bg-gray-700 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500';
+
+        container.innerHTML += `
+            <div class="bg-gray-800 p-4 rounded-lg flex flex-col md:flex-row items-center gap-4 relative">
+                <div class="flex-shrink-0 text-indigo-400 text-4xl w-16 text-center"><i class="${upgrade.icon}"></i></div>
+                <div class="flex-grow text-center md:text-left">
+                    <h3 class="font-bold text-lg text-indigo-400">${upgrade.name}</h3>
+                    <p class="text-sm text-gray-400">${description}</p>
+                    <p class="text-sm mt-1">${levelDisplay}</p>
                 </div>
-                <div class="flex-grow">
-                    <h3 class="font-bold text-lg text-cyan-300">${upgrade.name}</h3>
-                    <p class="text-sm text-gray-300">${upgrade.description}</p>
-                    <p class="text-sm mt-2">Cấp: ${currentLevel} | <span class="text-cyan-400 font-bold">Bonus: +${currentBonus}%</span></p>
-                    <p class="text-sm text-gray-400">Cấp tiếp theo: +${nextBonus}%</p>
+                <div class="flex-shrink-0 w-full md:w-48">
+                    ${currentLevel > 0 ? `<button class="w-full p-3 rounded-md ${buttonSkillClass} font-bold" onclick="useSkill('${upgrade.id}')" ${isDisabled ? 'disabled' : ''}>${isDisabled ? `Hồi chiêu: ${cooldownLeft}s` : 'Sử dụng'}</button>`
+                    : `<button class="w-full p-3 rounded-md ${buttonClass} font-bold" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Mở khóa (💰 ${currentCost})</button>`}
                 </div>
-                <div class="flex-shrink-0">
-                     <button class="p-3 rounded-md ${buttonClass} font-bold flex flex-col items-center" onclick="buyGemUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>
-                        <span>Nâng Cấp</span>
-                        <span class="text-xs">💎 ${currentCost}</span>
-                     </button>
+                ${currentLevel > 0 && cooldownLeft > 0 ? `<div class="absolute bottom-0 left-0 h-1 bg-indigo-900 rounded-b-lg w-full"><div class="bg-indigo-400 h-full rounded-b-lg" style="width: ${((upgrade.cooldown - cooldownLeft) / upgrade.cooldown) * 100}%;"></div></div>` : ''}
+            </div>`;
+    } else {
+        const iconHtml = upgrade.upgradeIcon ? `<i class="${upgrade.upgradeIcon} mr-2"></i>` : (upgrade.icon ? `<i class="${upgrade.icon} mr-2"></i>` : '');
+        container.innerHTML += `
+            <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-lg text-indigo-400">${iconHtml}${upgrade.name}</h3>
+                    <p class="text-sm text-gray-400 mt-1">${description}</p>
+                    ${extraInfo}
+                    <p class="text-sm mt-2">${levelDisplay}</p>
+                    <p class="text-sm text-yellow-300">${nextLevelInfo}</p>
                 </div>
-            </div>
-        `;
-    });
+                <div class="mt-4 flex items-center justify-between">
+                    <span class="text-yellow-400 text-sm font-bold">${isMaxLevel ? 'Đã tối đa' : `💰 ${currentCost}`}</span>
+                    <button class="p-2 rounded-md ${buttonClass}" onclick="buyUpgrade('${upgrade.id}')" ${canAfford ? '' : 'disabled'}>Nâng cấp</button>
+                </div>
+            </div>`;
+    }
 }
-
 const rarityMap = {
     'Common': 'text-gray-400', 'Rare': 'text-blue-400', 'Epic': 'text-purple-400', 'Legendary': 'text-yellow-400'
 };
@@ -923,6 +1006,7 @@ function createParticle(content) {
 
 // --- Timers and Intervals ---
 
+// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm startDpsTimers)
 function startDpsTimers() {
     for (const id in dpsIntervals) {
         clearInterval(dpsIntervals[id]);
@@ -948,15 +1032,17 @@ function startDpsTimers() {
             const maxLevelForStats = dpsItem.levelStats.length;
             const currentStats = dpsItem.levelStats[Math.min(dpsLevel, maxLevelForStats) - 1];
             
-            let baseDamage = calculateDpsDamage(dpsItem, dpsLevel, currentStats);
+            let baseDamage = calculateDpsDamage(dpsItem, dpsLevel, currentStats); // Sử dụng hàm tính toán mới
             let finalSpeed = dpsItem.attackSpeed;
 
+            // Áp dụng bonus tốc độ đánh theo level người chơi
             if (dpsItem.id === 'archer' || dpsItem.id === 'treasure-hunter') {
-                const speedBonus = dpsItem.id === 'archer' ? 0.002 : 0.001;
-                finalSpeed /= (1 + gameState.level * speedBonus);
+                const speedBonusFactor = dpsItem.id === 'archer' ? 0.002 : 0.001;
+                finalSpeed /= (1 + gameState.level * speedBonusFactor);
             }
 
             let finalDamage = baseDamage;
+            // Áp dụng buff chung
             if (dpsItem.id !== 'pet') {
                 finalDamage *= (1 + petBuffDamage);
             }
@@ -978,20 +1064,28 @@ function startDpsTimers() {
     });
 }
 
+// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm applyDpsDamage)
 function applyDpsDamage(dpsItem, finalDamage, currentStats) {
     let type = dpsItem.id;
 
+    // Xử lý hiệu ứng đặc biệt của Mage (kích hoạt DOT)
     if (type === 'mage') {
-        if (Math.random() < 0.25 && !gameState.dot.mage.active) { 
+        // Tỉ lệ kích hoạt DOT của Mage, có thể tăng theo cấp nếu muốn
+        const dotProcChance = 0.25; 
+        if (Math.random() < dotProcChance && !gameState.dot.mage.active) {
             applyDot('mage', finalDamage, currentStats.level);
         }
-    } else if (type === 'treasure-hunter') {
+    } 
+    // Xử lý hiệu ứng đặc biệt của Thợ săn (kiếm vàng)
+    else if (type === 'treasure-hunter') {
         const goldEcoBonus = (gameState.upgrades['treasure-hunter-eco']?.level || 0) * 0.1 + 1;
+        // Công thức vàng mới cho Thợ săn
         const finalGold = (currentStats.goldAmount + gameState.level * 0.5) * goldEcoBonus;
         gameState.gold += finalGold;
         displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, Math.round(finalGold), 'gold');
     }
     
+    // Gây sát thương chính
     gameState.currentMonsterHP -= Math.round(finalDamage);
     displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, finalDamage, `dps-${type}`);
 
@@ -1126,6 +1220,7 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
+
 
 
 
