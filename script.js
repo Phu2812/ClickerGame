@@ -92,56 +92,57 @@ const GAME_DATA = {
                 ], type: "click", maxLevel: 5, icon: "fa-solid fa-snowflake", category: "elemental"
             }
         ],
-        dps: [
-            { 
-                id: 'swordsman', name: "Hiệp sĩ", description: "Sát thương ổn định, toàn diện", cost: 15, type: "dps", 
-                attackSpeed: 1000, icon: "⚔️", color: "damage-number-swordsman", upgradeIcon: "fa-solid fa-shield-halved", maxLevel: 10,
-                levelStats: [
-                    { level: 1, damage: 15 }, { level: 2, damage: 25 }, { level: 3, damage: 38 }, { level: 4, damage: 55 }, { level: 5, damage: 75 },
-                    { level: 6, damage: 100 }, { level: 7, damage: 135 }, { level: 8, damage: 180 }, { level: 9, damage: 240 }, { level: 10, damage: 300 },
-                ]
-            },
-            { 
-                id: 'mage', name: "Pháp sư", description: "Gây sát thương đốt cực mạnh theo thời gian", cost: 30, type: "dps",
-                attackSpeed: 1500, icon: "🧙‍♂️", color: "damage-number-mage", upgradeIcon: "fa-solid fa-hat-wizard", maxLevel: 10,
-                levelStats: [
-                    { level: 1, damage: 5, dotMultiplier: 0.3 }, { level: 2, damage: 7, dotMultiplier: 0.4 }, { level: 3, damage: 9, dotMultiplier: 0.5 }, 
-                    { level: 4, damage: 11, dotMultiplier: 0.6 }, { level: 5, damage: 13, dotMultiplier: 0.75 }, { level: 6, damage: 15, dotMultiplier: 0.9 }, 
-                    { level: 7, damage: 17, dotMultiplier: 1.1 }, { level: 8, damage: 19, dotMultiplier: 1.3 }, { level: 9, damage: 21, dotMultiplier: 1.5 }, 
-                    { level: 10, damage: 25, dotMultiplier: 1.8 },
-                ]
-            },
-            { 
-                id: 'archer', name: "Cung thủ", description: "Tốc độ tấn công tăng theo level người chơi", cost: 25, type: "dps", 
-                attackSpeed: 500, icon: "🏹", color: "damage-number-archer", upgradeIcon: "fa-solid fa-bullseye", maxLevel: 10,
-                levelStats: [
-                    { level: 1, damage: 8 }, { level: 2, damage: 13 }, { level: 3, damage: 20 }, { level: 4, damage: 29 }, { level: 5, damage: 40 },
-                    { level: 6, damage: 55 }, { level: 7, damage: 75 }, { level: 8, damage: 100 }, { level: 9, damage: 135 }, { level: 10, damage: 180 },
-                ]
-            },
-            { 
-                id: 'treasure-hunter', name: "Thợ săn tiền thưởng", description: "Lượng vàng rơi tăng theo level người chơi", cost: 50, type: "dps",
-                attackSpeed: 800, icon: "🗡️", color: "damage-number-hunter", upgradeIcon: "fa-solid fa-sack-dollar", maxLevel: 10,
-                levelStats: [
-                    { level: 1, damage: 5, goldAmount: 10 }, { level: 2, damage: 8, goldAmount: 15 },
-                    { level: 3, damage: 12, goldAmount: 22 }, { level: 4, damage: 17, goldAmount: 30 },
-                    { level: 5, damage: 23, goldAmount: 40 }, { level: 6, damage: 30, goldAmount: 55 },
-                    { level: 7, damage: 40, goldAmount: 75 }, { level: 8, damage: 55, goldAmount: 100 },
-                    { level: 9, damage: 75, goldAmount: 130 }, { level: 10, damage: 100, goldAmount: 170 },
-                ]
-            },
-            { 
-                id: 'pet', name: "Pet", description: "Buff cực mạnh cho đồng đội ở cấp cao", cost: 100, type: "dps", maxLevel: 5,
-                attackSpeed: 2000, icon: "🐲", color: "damage-number-pet", upgradeIcon: "fa-solid fa-dragon",
-                levelStats: [
-                    { level: 1, damage: 20, buff: { damage: 0.1, attackSpeed: 0.05 } },
-                    { level: 2, damage: 40, buff: { damage: 0.15, attackSpeed: 0.08 } },
-                    { level: 3, damage: 70, buff: { damage: 0.25, attackSpeed: 0.12 } },
-                    { level: 4, damage: 120, buff: { damage: 0.4, attackSpeed: 0.18 } },
-                    { level: 5, damage: 200, buff: { damage: 0.6, attackSpeed: 0.25 } },
-                ]
-            },
-        ],
+            // ĐOẠN MÃ MỚI (thay thế cho toàn bộ mảng upgrades.dps)
+            dps: [
+                { 
+                    id: 'swordsman', name: "Hiệp sĩ", description: "Sát thương ổn định, toàn diện.", cost: 15, type: "dps", 
+                    attackSpeed: 1000, icon: "⚔️", color: "damage-number-swordsman", upgradeIcon: "fa-solid fa-shield-halved", maxLevel: 10,
+                    levelStats: [
+                        { level: 1, damage: 15 }, { level: 2, damage: 25 }, { level: 3, damage: 38 }, { level: 4, damage: 55 }, { level: 5, damage: 75 },
+                        { level: 6, damage: 100 }, { level: 7, damage: 135 }, { level: 8, damage: 180 }, { level: 9, damage: 240 }, { level: 10, damage: 300 },
+                    ]
+                },
+                { 
+                    id: 'mage', name: "Pháp sư", description: "Gây sát thương đốt cực mạnh theo thời gian.", cost: 30, type: "dps",
+                    attackSpeed: 1500, icon: "🧙‍♂️", color: "damage-number-mage", upgradeIcon: "fa-solid fa-hat-wizard", maxLevel: 10,
+                    levelStats: [
+                        { level: 1, damage: 5, dotMultiplier: 0.3 }, { level: 2, damage: 7, dotMultiplier: 0.4 }, { level: 3, damage: 9, dotMultiplier: 0.5 }, 
+                        { level: 4, damage: 11, dotMultiplier: 0.6 }, { level: 5, damage: 13, dotMultiplier: 0.75 }, { level: 6, damage: 15, dotMultiplier: 0.9 }, 
+                        { level: 7, damage: 17, dotMultiplier: 1.1 }, { level: 8, damage: 19, dotMultiplier: 1.3 }, { level: 9, damage: 21, dotMultiplier: 1.5 }, 
+                        { level: 10, damage: 25, dotMultiplier: 1.8 },
+                    ]
+                },
+                { 
+                    id: 'archer', name: "Cung thủ", description: "Tốc độ tấn công tăng theo level người chơi.", cost: 25, type: "dps", 
+                    attackSpeed: 500, icon: "🏹", color: "damage-number-archer", upgradeIcon: "fa-solid fa-bullseye", maxLevel: 10,
+                    levelStats: [
+                        { level: 1, damage: 8 }, { level: 2, damage: 13 }, { level: 3, damage: 20 }, { level: 4, damage: 29 }, { level: 5, damage: 40 },
+                        { level: 6, damage: 55 }, { level: 7, damage: 75 }, { level: 8, damage: 100 }, { level: 9, damage: 135 }, { level: 10, damage: 180 },
+                    ]
+                },
+                { 
+                    id: 'treasure-hunter', name: "Thợ săn tiền thưởng", description: "Lượng vàng rơi tăng theo level người chơi.", cost: 50, type: "dps",
+                    attackSpeed: 800, icon: "🗡️", color: "damage-number-hunter", upgradeIcon: "fa-solid fa-sack-dollar", maxLevel: 10,
+                    levelStats: [
+                        { level: 1, damage: 5, goldAmount: 10 }, { level: 2, damage: 8, goldAmount: 15 },
+                        { level: 3, damage: 12, goldAmount: 22 }, { level: 4, damage: 17, goldAmount: 30 },
+                        { level: 5, damage: 23, goldAmount: 40 }, { level: 6, damage: 30, goldAmount: 55 },
+                        { level: 7, damage: 40, goldAmount: 75 }, { level: 8, damage: 55, goldAmount: 100 },
+                        { level: 9, damage: 75, goldAmount: 130 }, { level: 10, damage: 100, goldAmount: 170 },
+                    ]
+                },
+                { 
+                    id: 'pet', name: "Pet", description: "Buff cực mạnh cho đồng đội ở cấp cao.", cost: 100, type: "dps", maxLevel: 5,
+                    attackSpeed: 2000, icon: "🐲", color: "damage-number-pet", upgradeIcon: "fa-solid fa-dragon",
+                    levelStats: [
+                        { level: 1, damage: 20, buff: { damage: 0.1, attackSpeed: 0.05 } },
+                        { level: 2, damage: 40, buff: { damage: 0.15, attackSpeed: 0.08 } },
+                        { level: 3, damage: 70, buff: { damage: 0.25, attackSpeed: 0.12 } },
+                        { level: 4, damage: 120, buff: { damage: 0.4, attackSpeed: 0.18 } },
+                        { level: 5, damage: 200, buff: { damage: 0.6, attackSpeed: 0.25 } },
+                    ]
+                },
+            ],
         economy: [
             { id: 'gold-multiplier', name: "Gold Multiplier", description: "Tăng % vàng rơi", cost: 20, effect: 0.05, type: "economy", maxLevel: 10, icon: "fa-solid fa-percent" },
             { id: 'boss-loot', name: "Boss Loot", description: "Thêm rơi gem", cost: 200, effect: 1, type: "economy", maxLevel: Infinity, icon: "fa-solid fa-gem" },
@@ -1125,6 +1126,7 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
+
 
 
 
