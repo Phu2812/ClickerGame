@@ -611,6 +611,8 @@ function updateUI() {
     const hpPercentage = (gameState.currentMonsterHP / gameState.maxMonsterHP) * 100;
     healthBarFill.style.width = `${Math.max(0, hpPercentage)}%`;
     hpText.textContent = `${Math.max(0, Math.round(gameState.currentMonsterHP)).toLocaleString()} / ${Math.round(gameState.maxMonsterHP).toLocaleString()}`;
+
+    renderUpgrades(); // <--- THÊM DÒNG NÀY VÀO ĐÂY
 }
 
 function renderUpgrades() {
@@ -1110,3 +1112,4 @@ showSubTab('click-upgrades');
 showTab('upgrade');
 
 initGame();
+
