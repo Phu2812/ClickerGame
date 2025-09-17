@@ -516,7 +516,7 @@ function buyGemUpgrade(id) {
 
 function buyAlbum(id) {
     const albumData = GAME_DATA.albums.find(a => a.id === id);
-    if (!albumData || gameState.albums[id]?.unlocked) return;
+    if (!albumData || (gameState.albums[id] && gameState.albums[id].unlocked)) return;
 
     if (gameState.gold >= albumData.cost) {
         gameState.gold -= albumData.cost;
@@ -524,7 +524,10 @@ function buyAlbum(id) {
             gameState.albums[id] = {};
         }
         gameState.albums[id].unlocked = true;
+        
         updateUI();
+        renderAlbums(); // <-- THÊM DÒNG NÀY ĐỂ CẬP NHẬT GIAO DIỆN NGAY LẬP TỨC
+        saveGame();
     } else {
         showNotification("Không đủ vàng!", "error");
     }
@@ -1183,10 +1186,13 @@ function zoomImage(imageSrc) {
     const zoomImageElement = document.getElementById('zoom-image');
     zoomImageElement.src = imageSrc;
     zoomPopup.style.display = 'flex';
+    gameScreen.style.display = 'none'; // <-- THÊM DÒNG NÀY ĐỂ ẨN GIAO DIỆN GAME
 }
 
 function closeZoomPopup() {
-    if(zoomPopup) zoomPopup.style.display = 'none';
+    if(!zoomPopup) return;
+    zoomPopup.style.display = 'none';
+    gameScreen.style.display = 'flex'; // <-- THÊM DÒNG NÀY ĐỂ HIỆN LẠI GIAO DIỆN GAME
 }
 
 function findUpgradeData(id) {
@@ -1326,3 +1332,4 @@ function handleKeyPress(event) {
 showSubTab('click-upgrades');
 showTab('upgrade');
 initGame();
+
