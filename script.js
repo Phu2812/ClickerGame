@@ -168,7 +168,7 @@ let monsterContainerRect;
 
 // ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm initGame cũ)
 async function initGame() {
-    // Bước 1: Chuyển tất cả các khai báo DOM element vào đây để đảm bảo HTML đã sẵn sàng
+    // Chuyển tất cả các khai báo DOM element vào đây để đảm bảo HTML đã sẵn sàng
     const gameScreen = document.getElementById('game-screen');
     const pauseMenu = document.getElementById('pause-menu');
     const zoomPopup = document.getElementById('zoom-popup');
@@ -209,7 +209,7 @@ async function initGame() {
     recalculateStats();
     generateMonster();
     
-    // Bước 2: Chạy các hàm timer SAU KHI mọi thứ đã được tính toán
+    // Chạy các hàm timer SAU KHI mọi thứ đã được tính toán
     startDpsTimers();
     startSkillCooldownTimer();
     
@@ -1320,4 +1320,5 @@ function handleKeyPress(event) {
 showSubTab('click-upgrades');
 showTab('upgrade');
 initGame();
+
 
