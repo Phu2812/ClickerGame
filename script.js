@@ -158,80 +158,79 @@ const GAME_DATA = {
     albums: [] 
 };
 
-// --- Biến toàn cục cho trạng thái game ---
+// DOM elements
+const gameScreen = document.getElementById('game-screen');
+const pauseMenu = document.getElementById('pause-menu');
+const zoomPopup = document.getElementById('zoom-popup');
+const monsterIcon = document.getElementById('monster-icon');
+const healthBarFill = document.getElementById('health-bar-fill');
+const hpText = document.getElementById('hp-text');
+const monsterName = document.getElementById('monster-name');
+const levelDisplay = document.getElementById('level-display');
+const goldDisplay = document.getElementById('gold-display');
+const gemDisplay = document.getElementById('gem-display');
+const clickDamageDisplay = document.getElementById('click-damage-display');
+const upgradeTabContainer = document.getElementById('upgrade-tab');
+const albumTabContainer = document.getElementById('album-tab');
+const gemShopTabContainer = document.getElementById('gem-shop-tab');
+const clickUpgradesContainer = document.getElementById('click-upgrades');
+const dpsUpgradesContainer = document.getElementById('dps-upgrades');
+const economyUpgradesContainer = document.getElementById('economy-upgrades');
+const skillUpgradesContainer = document.getElementById('skill-upgrades');
+const albumGrid = document.getElementById('album-grid');
+const gemUpgradesContainer = document.getElementById('gem-upgrades-container');
+const screenOverlay = document.getElementById('screen-overlay');
+const particleContainer = document.getElementById('particle-container');
+let activeParticleInterval = null;
+
 let isPaused = false;
 let dpsIntervals = {};
 let skillCooldownInterval = null;
 let monsterContainerRect;
-let currentAlbumFilter = 'all';
 
-// THÊM KHỐI NÀY VÀO
-// Khai báo các biến DOM element ở phạm vi toàn cục
-let gameScreen, pauseMenu, zoomPopup, monsterIcon, healthBarFill, hpText, monsterName, 
-    levelDisplay, goldDisplay, gemDisplay, clickDamageDisplay, 
-    clickUpgradesContainer, dpsUpgradesContainer, economyUpgradesContainer, 
-    skillUpgradesContainer, albumGrid, gemUpgradesContainer, screenOverlay, 
-    particleContainer, equipSkillModal, activeParticleInterval;
 // --- Game Logic ---
 
-// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm initGame cũ)
 async function initGame() {
-    // Gán giá trị cho các biến DOM element (đã được khai báo toàn cục)
-    gameScreen = document.getElementById('game-screen');
-    pauseMenu = document.getElementById('pause-menu');
-    zoomPopup = document.getElementById('zoom-popup');
-    monsterIcon = document.getElementById('monster-icon');
-    healthBarFill = document.getElementById('health-bar-fill');
-    hpText = document.getElementById('hp-text');
-    monsterName = document.getElementById('monster-name');
-    levelDisplay = document.getElementById('level-display');
-    goldDisplay = document.getElementById('gold-display');
-    gemDisplay = document.getElementById('gem-display');
-    clickDamageDisplay = document.getElementById('click-damage-display');
-    clickUpgradesContainer = document.getElementById('click-upgrades');
-    dpsUpgradesContainer = document.getElementById('dps-upgrades');
-    economyUpgradesContainer = document.getElementById('economy-upgrades');
-    skillUpgradesContainer = document.getElementById('skill-upgrades');
-    albumGrid = document.getElementById('album-grid');
-    gemUpgradesContainer = document.getElementById('gem-upgrades-container');
-    screenOverlay = document.getElementById('screen-overlay');
-    particleContainer = document.getElementById('particle-container');
-    equipSkillModal = document.getElementById('equip-skill-modal');
-
-    // Gán giá trị cho monsterContainerRect ngay sau khi có DOM element
-    monsterContainerRect = document.getElementById('monster-container').getBoundingClientRect();
-
     await loadAlbumsData();
     loadGame();
     
-    // Khởi tạo các nâng cấp
-    for (const type in GAME_DATA.upgrades) {
+    ['click', 'dps', 'economy', 'skill'].forEach(type => {
+        if (!gameState.upgrades[type]) {
+             gameState.upgrades[type] = {};
+        }
         GAME_DATA.upgrades[type].forEach(item => {
             if (!gameState.upgrades[item.id]) {
                 gameState.upgrades[item.id] = { level: 0 };
             }
         });
-    }
+    });
     if (!gameState.gemUpgrades) gameState.gemUpgrades = {};
-    GAME_DATA.gemUpgrades.forEach(item => { if (!gameState.gemUpgrades[item.id]) gameState.gemUpgrades[item.id] = { level: 0 }; });
+    GAME_DATA.gemUpgrades.forEach(item => {
+        if (!gameState.gemUpgrades[item.id]) {
+                gameState.gemUpgrades[item.id] = { level: 0 };
+        }
+    });
     if (!gameState.albums) gameState.albums = {};
-    GAME_DATA.albums.forEach(item => { if (!gameState.albums[item.id]) gameState.albums[item.id] = { unlocked: false }; });
+    GAME_DATA.albums.forEach(item => {
+        if (!gameState.albums[item.id]) {
+            gameState.albums[item.id] = { unlocked: false, price: item.cost };
+        }
+    });
 
     recalculateStats();
     generateMonster();
-    
-    // Bắt đầu các vòng lặp và cập nhật UI
+    updateUI();
     startDpsTimers();
     startSkillCooldownTimer();
-    updateUI();
     
-    // Ẩn các menu popup ban đầu
     pauseMenu.style.display = 'none';
-    if(zoomPopup) zoomPopup.style.display = 'none';
-    if (equipSkillModal) equipSkillModal.style.display = 'none';
+    zoomPopup.style.display = 'none';
+    const equipModal = document.getElementById('equip-skill-modal');
+    if (equipModal) equipModal.style.display = 'none';
     
     gameScreen.style.display = 'flex';
     
+    monsterContainerRect = document.getElementById('monster-container').getBoundingClientRect();
     document.addEventListener('keydown', handleKeyPress);
 }
 
@@ -241,7 +240,19 @@ async function loadAlbumsData() {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        GAME_DATA.albums = await response.json();
+        const albumsData = await response.json();
+        
+        const rarityMap = { 1: 'Common', 2: 'Rare', 3: 'Epic', 4: 'Legendary' };
+        GAME_DATA.albums = albumsData.map((album, index) => {
+            return {
+                id: `album-${index + 1}`,
+                name: album.displayName,
+                cost: album.cost,
+                rarity: rarityMap[album.rarity] || 'Common',
+                image: `images/${album.fileName}`
+            };
+        });
+        
     } catch (error) {
         console.error("Could not load images.json:", error);
         GAME_DATA.albums = [];
@@ -254,7 +265,7 @@ function handleMonsterClick(event) {
     let baseDamage = gameState.damagePerClick;
     
     if (gameState.activeSkills['rage-mode']) {
-        baseDamage *= gameState.activeSkills['rage-mode'];
+        baseDamage *= 5;
     }
     
     const doubleTapLevel = gameState.upgrades['double-tap']?.level || 0;
@@ -393,10 +404,7 @@ function applyDot(type, baseDamage, level) {
 
             gameState.currentMonsterHP -= gameState.dot[type].damage;
             let dotClass = type === 'playerFire' ? 'dot-fire' : (type === 'playerPoison' ? 'dot-poison' : 'dot-mage');
-            if(monsterContainerRect) {
-                displayDamageNumber(Math.random() * (monsterContainerRect.width - 40) + monsterContainerRect.left + 20, Math.random() * (monsterContainerRect.height - 40) + monsterContainerRect.top + 20, gameState.dot[type].damage, dotClass);
-            }
-            
+            displayDamageNumber(Math.random() * (monsterContainerRect.width - 40) + monsterContainerRect.left + 20, Math.random() * (monsterContainerRect.height - 40) + monsterContainerRect.top + 20, gameState.dot[type].damage, dotClass);
 
             if (gameState.currentMonsterHP <= 0) defeatMonster();
             
@@ -418,7 +426,7 @@ function defeatMonster() {
     goldReward *= (1 + goldBonus);
 
     if (gameState.activeSkills['gold-rush']) {
-        goldReward *= gameState.activeSkills['gold-rush'];
+        goldReward *= 2;
     }
 
     if (gameState.level % 10 === 0) { 
@@ -508,7 +516,7 @@ function buyGemUpgrade(id) {
 
 function buyAlbum(id) {
     const albumData = GAME_DATA.albums.find(a => a.id === id);
-    if (!albumData || (gameState.albums[id] && gameState.albums[id].unlocked)) return;
+    if (!albumData || gameState.albums[id]?.unlocked) return;
 
     if (gameState.gold >= albumData.cost) {
         gameState.gold -= albumData.cost;
@@ -516,10 +524,7 @@ function buyAlbum(id) {
             gameState.albums[id] = {};
         }
         gameState.albums[id].unlocked = true;
-        
         updateUI();
-        renderAlbums();
-        saveGame();
     } else {
         showNotification("Không đủ vàng!", "error");
     }
@@ -538,12 +543,9 @@ function useSkill(id) {
         let totalDamage = gameState.maxMonsterHP * 0.5;
         totalDamage *= gemSkillBonus;
         gameState.currentMonsterHP -= Math.round(totalDamage);
-        if (monsterContainerRect) {
-            displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, Math.round(totalDamage), 'skill');
-        }
+        displayDamageNumber(Math.random() * (monsterContainerRect.width - 40) + monsterContainerRect.left + 20, Math.random() * (monsterContainerRect.height - 40) + monsterContainerRect.top + 20, Math.round(totalDamage), 'skill');
         animateMonsterHit();
         
-        const screenOverlay = document.getElementById('screen-overlay');
         screenOverlay.className = 'screen-effect-overlay firestorm';
         screenOverlay.style.opacity = 1;
         setTimeout(() => { screenOverlay.style.opacity = 0; }, 1000);
@@ -552,9 +554,6 @@ function useSkill(id) {
     } else if (skillData.duration > 0) {
         gameState.activeSkills[id] = skillData.effect;
 
-        const screenOverlay = document.getElementById('screen-overlay');
-        const particleContainer = document.getElementById('particle-container');
-        
         if (id === 'gold-rush') {
             screenOverlay.className = 'screen-effect-overlay gold-rush';
             screenOverlay.style.opacity = 1;
@@ -570,9 +569,9 @@ function useSkill(id) {
             if (id === 'gold-rush') {
                 if(activeParticleInterval) clearInterval(activeParticleInterval);
                 activeParticleInterval = null;
-                if(particleContainer) particleContainer.innerHTML = '';
+                particleContainer.innerHTML = '';
             }
-           if(screenOverlay) screenOverlay.style.opacity = 0;
+            screenOverlay.style.opacity = 0;
         }, skillData.duration * 1000);
     }
 
@@ -594,13 +593,6 @@ function recalculateStats() {
 // --- UI Functions ---
 
 function updateUI() {
-    const goldDisplay = document.getElementById('gold-display');
-    const gemDisplay = document.getElementById('gem-display');
-    const levelDisplay = document.getElementById('level-display');
-    const clickDamageDisplay = document.getElementById('click-damage-display');
-    const healthBarFill = document.getElementById('health-bar-fill');
-    const hpText = document.getElementById('hp-text');
-
     goldDisplay.textContent = `💰 ${Math.round(gameState.gold).toLocaleString()} Vàng`;
     gemDisplay.textContent = `💎 ${gameState.gems.toLocaleString()} Gems`;
     levelDisplay.textContent = `Level ${gameState.level}`;
@@ -616,11 +608,6 @@ function updateUI() {
 }
 
 function renderUpgrades() {
-    const clickUpgradesContainer = document.getElementById('click-upgrades');
-    const dpsUpgradesContainer = document.getElementById('dps-upgrades');
-    const economyUpgradesContainer = document.getElementById('economy-upgrades');
-    const skillUpgradesContainer = document.getElementById('skill-upgrades');
-    
     const containers = {
         'click': clickUpgradesContainer,
         'dps': dpsUpgradesContainer,
@@ -672,7 +659,7 @@ function renderUpgradeCard(upgrade, container) {
     const currentLevel = gameState.upgrades[upgrade.id]?.level || 0;
     const maxLevel = upgrade.maxLevel || Infinity;
     const isMaxLevel = currentLevel >= maxLevel;
-    const currentCost = Math.round(upgrade.cost * Math.pow(1.5, currentLevel));
+    const currentCost = Math.round(upgrade.cost * Math.pow(1.15, currentLevel));
     const canAfford = gameState.gold >= currentCost && !isMaxLevel;
     const buttonClass = canAfford ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-gray-700 cursor-not-allowed';
     
@@ -689,10 +676,8 @@ function renderUpgradeCard(upgrade, container) {
         let petBuffDamage = 0;
         if (petLevel > 0) {
             const petData = findUpgradeData('pet');
-            if (petData && petData.levelStats) {
-                const petStats = petData.levelStats[petLevel - 1];
-                petBuffDamage = petStats.buff.damage;
-            }
+            const petStats = petData.levelStats[petLevel - 1];
+            petBuffDamage = petStats.buff.damage;
         }
         const gemDpsLevel = gameState.gemUpgrades['gem-dps-damage']?.level || 0;
         const gemDpsBonus = 1 + (gemDpsLevel * (findGemUpgradeData('gem-dps-damage')?.effect || 0));
@@ -806,6 +791,7 @@ function renderUpgradeCard(upgrade, container) {
 
     if (type === 'skill') {
         const cooldownLeft = gameState.skillCooldowns[upgrade.id] || 0;
+        const isDisabled = currentLevel === 0;
         const buttonText = currentLevel > 0 ? 'Trang bị' : `Mở khóa (💰 ${currentCost.toLocaleString()})`;
         const canBuyOrEquip = (currentLevel > 0) || (currentLevel === 0 && canAfford);
         const buttonSkillClass = canBuyOrEquip ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-gray-700 cursor-not-allowed';
@@ -924,29 +910,25 @@ function renderAlbums() {
 
 function showTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-    const tab = document.getElementById(tabName + '-tab');
-    if(tab) tab.classList.remove('hidden');
+    document.getElementById(tabName + '-tab').classList.remove('hidden');
 
-    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.replace('bg-gray-700', 'bg-gray-800'));
-    const button = document.querySelector(`.tab-button[onclick="showTab('${tabName}')"]`);
-    if(button) button.classList.replace('bg-gray-800', 'bg-gray-700');
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('bg-gray-700', 'font-bold'));
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.add('bg-gray-800'));
+    
+    document.querySelector(`.tab-button[onclick="showTab('${tabName}')"]`).classList.add('bg-gray-700', 'font-bold');
 }
 
 function showSubTab(tabName) {
     document.querySelectorAll('.sub-tab-content').forEach(tab => tab.classList.add('hidden'));
-    const subtab = document.getElementById(tabName);
-    if(subtab) subtab.classList.remove('hidden');
+    document.getElementById(tabName).classList.remove('hidden');
 
     document.querySelectorAll('.sub-tab-button').forEach(btn => {
-        btn.classList.remove('bg-gray-700', 'text-white');
+        btn.classList.remove('bg-gray-700', 'font-bold', 'text-white');
         btn.classList.add('bg-gray-800', 'text-gray-400');
     });
     
-    const button = document.querySelector(`.sub-tab-button[onclick="showSubTab('${tabName}')"]`);
-    if(button) {
-        button.classList.add('bg-gray-700', 'text-white');
-        button.classList.remove('bg-gray-800', 'text-gray-400');
-    }
+    document.querySelector(`.sub-tab-button[onclick="showSubTab('${tabName}')"]`).classList.add('bg-gray-700', 'font-bold', 'text-white');
+    document.querySelector(`.sub-tab-button[onclick="showSubTab('${tabName}')"]`).classList.remove('text-gray-400');
 }
 
 // --- Animations ---
@@ -1009,7 +991,6 @@ function displayDamageNumber(x, y, damage, type) {
 
 function showNotification(message, type = 'info', duration = 3000) {
     const container = document.getElementById('notification-container');
-    if(!container) return;
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
@@ -1020,8 +1001,6 @@ function showNotification(message, type = 'info', duration = 3000) {
 }
 
 function createParticle(content) {
-    const particleContainer = document.getElementById('particle-container');
-    if(!particleContainer) return;
     const particle = document.createElement('div');
     particle.className = 'particle';
     particle.innerHTML = content;
@@ -1047,15 +1026,13 @@ function startDpsTimers() {
     let petBuffSpeed = 0;
     if (petLevel > 0) {
         const petData = GAME_DATA.upgrades.dps.find(u => u.id === 'pet');
-        if (petData && petData.levelStats) {
-            const petStats = petData.levelStats[petLevel - 1];
-            petBuffDamage = petStats.buff.damage;
-            petBuffSpeed = petStats.buff.attackSpeed;
-        }
+        const petStats = petData.levelStats[petLevel - 1];
+        petBuffDamage = petStats.buff.damage;
+        petBuffSpeed = petStats.buff.attackSpeed;
     }
 
     const gemDpsLevel = gameState.gemUpgrades['gem-dps-damage']?.level || 0;
-    const gemDpsBonus = 1 + (gemDpsLevel * (findGemUpgradeData('gem-dps-damage')?.effect || 0));
+    const gemDpsBonus = 1 + (gemDpsLevel * GAME_DATA.gemUpgrades.find(u => u.id === 'gem-dps-damage').effect);
 
     GAME_DATA.upgrades.dps.forEach(dpsItem => {
         const dpsLevel = gameState.upgrades[dpsItem.id]?.level || 0;
@@ -1108,15 +1085,11 @@ function applyDpsDamage(dpsItem, finalDamage, currentStats) {
         const finalGold = goldFromHunter * goldEcoBonus;
 
         gameState.gold += finalGold;
-        if (monsterContainerRect) {
-            displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, Math.round(finalGold), 'gold');
-        }
+        displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, Math.round(finalGold), 'gold');
     }
     
     gameState.currentMonsterHP -= Math.round(finalDamage);
-    if (monsterContainerRect) {
-        displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, finalDamage, `dps-${type}`);
-    }
+    displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, finalDamage, `dps-${type}`);
 
     if (gameState.currentMonsterHP <= 0) {
         defeatMonster();
@@ -1196,33 +1169,24 @@ function importSaveData() {
 // --- Menu and Popup Handlers ---
 
 function pauseGame() {
-    const pauseMenu = document.getElementById('pause-menu');
     isPaused = true;
-    if(pauseMenu) pauseMenu.style.display = 'flex';
+    pauseMenu.style.display = 'flex';
 }
 
 function resumeGame() {
-    const pauseMenu = document.getElementById('pause-menu');
     isPaused = false;
-    if(pauseMenu) pauseMenu.style.display = 'none';
+    pauseMenu.style.display = 'none';
 }
 
 function zoomImage(imageSrc) {
-    const gameScreen = document.getElementById('game-screen');
-    const zoomPopup = document.getElementById('zoom-popup');
     if(!zoomPopup) return;
     const zoomImageElement = document.getElementById('zoom-image');
     zoomImageElement.src = imageSrc;
     zoomPopup.style.display = 'flex';
-    gameScreen.style.display = 'none';
 }
 
 function closeZoomPopup() {
-    const gameScreen = document.getElementById('game-screen');
-    const zoomPopup = document.getElementById('zoom-popup');
-    if(!zoomPopup) return;
-    zoomPopup.style.display = 'none';
-    gameScreen.style.display = 'flex';
+    if(zoomPopup) zoomPopup.style.display = 'none';
 }
 
 function findUpgradeData(id) {
@@ -1237,6 +1201,7 @@ function findGemUpgradeData(id) {
     return GAME_DATA.gemUpgrades.find(u => u.id === id);
 }
 
+let currentAlbumFilter = 'all';
 function filterAlbums(rarity) {
     currentAlbumFilter = rarity;
     renderAlbums();
@@ -1245,16 +1210,14 @@ function filterAlbums(rarity) {
         btn.classList.remove('bg-gray-700');
         btn.classList.add('bg-gray-800');
     });
-    const button = document.querySelector(`.filter-button[onclick="filterAlbums('${rarity}')"]`);
-    if(button){
-        button.classList.remove('bg-gray-800');
-        button.classList.add('bg-gray-700');
-    }
+    document.querySelector(`.filter-button[onclick="filterAlbums('${rarity}')"]`).classList.remove('bg-gray-800');
+    document.querySelector(`.filter-button[onclick="filterAlbums('${rarity}')"]`).classList.add('bg-gray-700');
 }
 
 document.getElementById('pause-button').addEventListener('click', () => {
-     if(isPaused) resumeGame();
-     else pauseGame();
+     isPaused = !isPaused;
+     if(isPaused) pauseGame();
+     else resumeGame();
 });
 
 // --- CÁC HÀM MỚI CHO HỆ THỐNG KỸ NĂNG ---
@@ -1292,12 +1255,11 @@ function renderSkillBar() {
 }
 
 let skillToEquip = null;
+const equipSkillModal = document.getElementById('equip-skill-modal');
 
 function openEquipModal(skillId) {
-    const equipSkillModal = document.getElementById('equip-skill-modal');
     skillToEquip = skillId;
     const modalSlotsContainer = document.getElementById('modal-skill-slots');
-    if (!modalSlotsContainer) return;
     modalSlotsContainer.innerHTML = '';
 
     for (let i = 0; i < 3; i++) {
@@ -1319,7 +1281,6 @@ function openEquipModal(skillId) {
 }
 
 function closeEquipModal() {
-    const equipSkillModal = document.getElementById('equip-skill-modal');
     skillToEquip = null;
     if(equipSkillModal) equipSkillModal.style.display = 'none';
 }
@@ -1336,8 +1297,8 @@ function equipSkill(skillId, slotIndex) {
     saveGame();
 }
 
-function unequipSkill(event, slotIndex) {
-    event.preventDefault(); 
+function unequipSkill(slotIndex) {
+    event.preventDefault(); // Ngăn menu chuột phải hiện ra
     if (gameState.skillSlots[slotIndex]) {
         gameState.skillSlots[slotIndex] = null;
         renderSkillBar();
@@ -1365,4 +1326,3 @@ function handleKeyPress(event) {
 showSubTab('click-upgrades');
 showTab('upgrade');
 initGame();
-
