@@ -17,50 +17,51 @@
     <div id="screen-overlay" class="screen-effect-overlay"></div>
     <div id="particle-container"></div>
     
-    <div id="game-container" class="w-screen h-screen flex flex-col">
-        
-        <header id="top-bar" class="w-full p-4 flex justify-between items-center text-sm z-50">
+    <div id="game-screen" class="relative w-screen h-screen flex flex-col items-center justify-between transition-opacity duration-500">
+        <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-start text-sm z-50">
             <div class="flex flex-col items-start space-y-1">
                 <span id="level-display" class="text-lg font-bold gradient-text">Level 1</span>
                 <span id="gold-display" class="text-yellow-400">💰 0 Gold</span>
                 <span id="gem-display" class="text-cyan-400">💎 0 Gems</span>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="flex flex-col items-end space-y-1">
-                    <span id="click-damage-display">🖱️ Click DMG: 1</span>
-                </div>
-                <button id="pause-button" class="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                </button>
+            <div class="flex flex-col items-end space-y-1 absolute top-4 right-16">
+                <span id="click-damage-display">🖱️ Click DMG: 1</span>
             </div>
-        </header>
+            <button id="pause-button" class="absolute top-4 right-4 p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
 
-        <main id="main-content" class="flex-grow flex flex-col justify-center items-center relative">
-            <div id="monster-area" class="flex flex-col items-center">
-                <h2 id="monster-name" class="text-2xl font-bold mb-4">Slime</h2>
-                <div id="health-bar-container" class="w-full bg-gray-700 rounded-full mb-4 border-2 border-gray-600 relative">
-                    <div id="health-bar-fill" class="h-full bg-red-500 rounded-full" style="width: 100%;"></div>
-                    <span id="hp-text" class="absolute inset-0 flex items-center justify-center font-bold text-white text-sm"></span>
-                </div>
-                <div id="monster-container" class="relative cursor-pointer flex items-center justify-center" onclick="handleMonsterClick(event)">
-                    <i id="monster-icon" class="monster-icon fas fa-frog"></i>
-                </div>
+        <div class="flex flex-col items-center mt-32 relative">
+            <h2 id="monster-name" class="text-2xl font-bold mb-4">Slime</h2>
+            <div class="w-80 h-8 bg-gray-700 rounded-full mb-4 border-2 border-gray-600 relative">
+                <div id="health-bar-fill" class="h-full bg-red-500 rounded-full" style="width: 100%;"></div>
+                <span id="hp-text" class="absolute inset-0 flex items-center justify-center font-bold text-white text-sm"></span>
             </div>
-
-            <div id="skill-bar-container" class="flex justify-center items-center gap-4 z-10 w-full">
-                <div id="skill-slot-0" class="skill-slot" onclick="activateSkillFromSlot(0)" oncontextmenu="unequipSkill(event, 0)">
-                    <i class="fas fa-plus"></i><div class="skill-cooldown-overlay"></div><span class="skill-keybind">1</span>
-                </div>
-                <div id="skill-slot-1" class="skill-slot" onclick="activateSkillFromSlot(1)" oncontextmenu="unequipSkill(event, 1)">
-                    <i class="fas fa-plus"></i><div class="skill-cooldown-overlay"></div><span class="skill-keybind">2</span>
-                </div>
-                <div id="skill-slot-2" class="skill-slot" onclick="activateSkillFromSlot(2)" oncontextmenu="unequipSkill(event, 2)">
-                    <i class="fas fa-plus"></i><div class="skill-cooldown-overlay"></div><span class="skill-keybind">3</span>
-                </div>
+            <div id="monster-container" class="relative w-64 h-64 cursor-pointer flex items-center justify-center" onclick="handleMonsterClick(event)">
+                <i id="monster-icon" class="monster-icon fas fa-frog"></i>
             </div>
-        </main>
+        </div>
 
-        <footer id="bottom-menu" class="w-full flex flex-col bg-gray-900 bg-opacity-70 p-4 pt-2">
+        <div id="skill-bar-container" class="fixed flex justify-center items-center gap-4 z-10 w-full">
+            <div id="skill-slot-0" class="skill-slot" onclick="activateSkillFromSlot(0)" oncontextmenu="unequipSkill(0); return false;">
+                <i class="fas fa-plus"></i>
+                <div class="skill-cooldown-overlay"></div>
+                <span class="skill-keybind">1</span>
+            </div>
+            <div id="skill-slot-1" class="skill-slot" onclick="activateSkillFromSlot(1)" oncontextmenu="unequipSkill(1); return false;">
+                <i class="fas fa-plus"></i>
+                <div class="skill-cooldown-overlay"></div>
+                <span class="skill-keybind">2</span>
+            </div>
+            <div id="skill-slot-2" class="skill-slot" onclick="activateSkillFromSlot(2)" oncontextmenu="unequipSkill(2); return false;">
+                <i class="fas fa-plus"></i>
+                <div class="skill-cooldown-overlay"></div>
+                <span class="skill-keybind">3</span>
+            </div>
+        </div>
+
+        <div class="fixed bottom-0 w-full flex flex-col bg-gray-900 bg-opacity-70 p-4 pt-2 transition-transform duration-500 transform translate-y-0">
             <div class="flex justify-around mb-2">
                 <button class="tab-button p-2 text-sm md:text-base flex-1 mx-1 rounded-t-lg bg-gray-700 font-bold" onclick="showTab('upgrade')">Nâng cấp</button>
                 <button class="tab-button p-2 text-sm md:text-base flex-1 mx-1 rounded-t-lg bg-gray-800" onclick="showTab('gem-shop')">Gem Shop</button>
@@ -69,15 +70,15 @@
 
             <div id="upgrade-tab" class="tab-content scroll-container h-80 overflow-y-auto">
                 <div class="flex justify-around bg-gray-800 p-2 rounded-t-md">
-                    <button class="sub-tab-button flex-1 text-center p-2 rounded-md font-bold text-sm text-white bg-gray-700" onclick="showSubTab('click-upgrades')">Click</button>
+                    <button class="sub-tab-button flex-1 text-center p-2 rounded-md font-bold text-sm" onclick="showSubTab('click-upgrades')">Click</button>
                     <button class="sub-tab-button flex-1 text-center p-2 rounded-md text-gray-400" onclick="showSubTab('dps-upgrades')">DPS</button>
                     <button class="sub-tab-button flex-1 text-center p-2 rounded-md text-gray-400" onclick="showSubTab('economy-upgrades')">Kinh tế</button>
                     <button class="sub-tab-button flex-1 text-center p-2 rounded-md text-gray-400" onclick="showSubTab('skill-upgrades')">Kỹ năng</button>
                 </div>
                 
-                <div id="click-upgrades" class="sub-tab-content grid grid-cols-1 gap-4 p-4"></div>
-                <div id="dps-upgrades" class="sub-tab-content hidden grid grid-cols-1 gap-4 p-4"></div>
-                <div id="economy-upgrades" class="sub-tab-content hidden grid grid-cols-1 gap-4 p-4"></div>
+                <div id="click-upgrades" class="sub-tab-content grid grid-cols-1 md:grid-cols-2 gap-4 p-4"></div>
+                <div id="dps-upgrades" class="sub-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-4"></div>
+                <div id="economy-upgrades" class="sub-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-4"></div>
                 <div id="skill-upgrades" class="sub-tab-content hidden grid grid-cols-1 gap-4 p-4"></div>
             </div>
 
@@ -95,10 +96,10 @@
                 </div>
                 <div id="album-grid" class="grid grid-cols-3 gap-4"></div>
             </div>
-        </footer>
+        </div>
     </div>
     
-    <div id="pause-menu" class="fixed inset-0 bg-gray-900 bg-opacity-95 hidden items-center justify-center transition-opacity duration-500 z-50">
+    <div id="pause-menu" class="fixed inset-0 bg-gray-900 bg-opacity-95 hidden items-center justify-center transition-opacity duration-500">
         <div class="p-8 bg-gray-800 rounded-lg shadow-lg text-center space-y-4">
             <h2 class="text-3xl font-bold gradient-text">Menu</h2>
             <button class="w-full p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-all glow-button" onclick="resumeGame()">Tiếp tục game</button>
@@ -107,9 +108,9 @@
         </div>
     </div>
     
-    <div id="zoom-popup" class="fixed inset-0 bg-gray-900 bg-opacity-95 hidden items-center justify-center transition-opacity duration-500 z-50">
+    <div id="zoom-popup" class="fixed inset-0 bg-gray-900 bg-opacity-95 hidden items-center justify-center transition-opacity duration-500">
         <div class="relative p-4 bg-gray-800 rounded-lg shadow-lg">
-            <img id="zoom-image" src="" alt="Zoomed image" class="max-w-[80vw] max-h-[80vh] object-contain">
+            <img id="zoom-image" src="" alt="Zoomed image" class="max-w-screen-sm max-h-screen-md object-contain">
             <button class="absolute top-2 right-2 p-2 rounded-full bg-red-600 hover:bg-red-500 transition-all" onclick="closeZoomPopup()">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -121,7 +122,8 @@
     <div id="equip-skill-modal" class="fixed inset-0 bg-gray-900 bg-opacity-95 hidden items-center justify-center transition-opacity duration-500 z-50">
         <div class="p-8 bg-gray-800 rounded-lg shadow-lg text-center space-y-4">
             <h2 class="text-2xl font-bold text-indigo-300">Chọn ô để trang bị kỹ năng</h2>
-            <div id="modal-skill-slots" class="flex justify-center items-center gap-4"></div>
+            <div id="modal-skill-slots" class="flex justify-center items-center gap-4">
+                </div>
             <button class="w-full mt-4 p-3 bg-red-600 rounded-lg hover:bg-red-500 transition-all" onclick="closeEquipModal()">Hủy</button>
         </div>
     </div>
