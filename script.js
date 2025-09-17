@@ -194,13 +194,14 @@ async function initGame() {
     await loadAlbumsData();
     loadGame();
     
-    ['click', 'dps', 'economy', 'skill'].forEach(type => {
+    // Initialize upgrades if not present in save data
+    for (const type in GAME_DATA.upgrades) {
         GAME_DATA.upgrades[type].forEach(item => {
             if (!gameState.upgrades[item.id]) {
                 gameState.upgrades[item.id] = { level: 0 };
             }
         });
-    });
+    }
     if (!gameState.gemUpgrades) gameState.gemUpgrades = {};
     GAME_DATA.gemUpgrades.forEach(item => {
         if (!gameState.gemUpgrades[item.id]) {
@@ -210,12 +211,16 @@ async function initGame() {
     if (!gameState.albums) gameState.albums = {};
     GAME_DATA.albums.forEach(item => {
         if (!gameState.albums[item.id]) {
-            gameState.albums[item.id] = { unlocked: false, price: item.cost };
+            gameState.albums[item.id] = { unlocked: false };
         }
     });
 
     recalculateStats();
     generateMonster();
+    
+    // UI related initializations should happen after main logic
+    monsterContainerRect = document.getElementById('monster-container').getBoundingClientRect();
+    
     updateUI();
     startDpsTimers();
     startSkillCooldownTimer();
@@ -227,7 +232,6 @@ async function initGame() {
     
     gameScreen.style.display = 'flex';
     
-    monsterContainerRect = document.getElementById('monster-container').getBoundingClientRect();
     document.addEventListener('keydown', handleKeyPress);
 }
 
@@ -237,19 +241,7 @@ async function loadAlbumsData() {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const albumsData = await response.json();
-        
-        const rarityMap = { 1: 'Common', 2: 'Rare', 3: 'Epic', 4: 'Legendary' };
-        GAME_DATA.albums = albumsData.map((album, index) => {
-            return {
-                id: `album-${index + 1}`,
-                name: album.displayName,
-                cost: album.cost,
-                rarity: rarityMap[album.rarity] || 'Common',
-                image: `images/${album.fileName}`
-            };
-        });
-        
+        GAME_DATA.albums = await response.json();
     } catch (error) {
         console.error("Could not load images.json:", error);
         GAME_DATA.albums = [];
@@ -543,7 +535,9 @@ function useSkill(id) {
         let totalDamage = gameState.maxMonsterHP * 0.5;
         totalDamage *= gemSkillBonus;
         gameState.currentMonsterHP -= Math.round(totalDamage);
-        displayDamageNumber(Math.random() * (monsterContainerRect.width - 40) + monsterContainerRect.left + 20, Math.random() * (monsterContainerRect.height - 40) + monsterContainerRect.top + 20, Math.round(totalDamage), 'skill');
+        if (monsterContainerRect) {
+            displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, Math.round(totalDamage), 'skill');
+        }
         animateMonsterHit();
         
         screenOverlay.className = 'screen-effect-overlay firestorm';
@@ -569,9 +563,9 @@ function useSkill(id) {
             if (id === 'gold-rush') {
                 if(activeParticleInterval) clearInterval(activeParticleInterval);
                 activeParticleInterval = null;
-                particleContainer.innerHTML = '';
+                if(particleContainer) particleContainer.innerHTML = '';
             }
-            screenOverlay.style.opacity = 0;
+           if(screenOverlay) screenOverlay.style.opacity = 0;
         }, skillData.duration * 1000);
     }
 
@@ -676,8 +670,10 @@ function renderUpgradeCard(upgrade, container) {
         let petBuffDamage = 0;
         if (petLevel > 0) {
             const petData = findUpgradeData('pet');
-            const petStats = petData.levelStats[petLevel - 1];
-            petBuffDamage = petStats.buff.damage;
+            if (petData) {
+                const petStats = petData.levelStats[petLevel - 1];
+                petBuffDamage = petStats.buff.damage;
+            }
         }
         const gemDpsLevel = gameState.gemUpgrades['gem-dps-damage']?.level || 0;
         const gemDpsBonus = 1 + (gemDpsLevel * (findGemUpgradeData('gem-dps-damage')?.effect || 0));
@@ -791,7 +787,6 @@ function renderUpgradeCard(upgrade, container) {
 
     if (type === 'skill') {
         const cooldownLeft = gameState.skillCooldowns[upgrade.id] || 0;
-        const isDisabled = currentLevel === 0;
         const buttonText = currentLevel > 0 ? 'Trang bị' : `Mở khóa (💰 ${currentCost.toLocaleString()})`;
         const canBuyOrEquip = (currentLevel > 0) || (currentLevel === 0 && canAfford);
         const buttonSkillClass = canBuyOrEquip ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-gray-700 cursor-not-allowed';
@@ -1085,11 +1080,15 @@ function applyDpsDamage(dpsItem, finalDamage, currentStats) {
         const finalGold = goldFromHunter * goldEcoBonus;
 
         gameState.gold += finalGold;
-        displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, Math.round(finalGold), 'gold');
+        if (monsterContainerRect) {
+            displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, Math.round(finalGold), 'gold');
+        }
     }
     
     gameState.currentMonsterHP -= Math.round(finalDamage);
-    displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, finalDamage, `dps-${type}`);
+    if (monsterContainerRect) {
+        displayDamageNumber(monsterContainerRect.left + monsterContainerRect.width / 2, monsterContainerRect.top + monsterContainerRect.height / 2, finalDamage, `dps-${type}`);
+    }
 
     if (gameState.currentMonsterHP <= 0) {
         defeatMonster();
