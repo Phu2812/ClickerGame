@@ -165,38 +165,46 @@ let skillCooldownInterval = null;
 let monsterContainerRect;
 let currentAlbumFilter = 'all';
 
+// THÊM KHỐI NÀY VÀO
+// Khai báo các biến DOM element ở phạm vi toàn cục
+let gameScreen, pauseMenu, zoomPopup, monsterIcon, healthBarFill, hpText, monsterName, 
+    levelDisplay, goldDisplay, gemDisplay, clickDamageDisplay, 
+    clickUpgradesContainer, dpsUpgradesContainer, economyUpgradesContainer, 
+    skillUpgradesContainer, albumGrid, gemUpgradesContainer, screenOverlay, 
+    particleContainer, equipSkillModal, activeParticleInterval;
 // --- Game Logic ---
 
+// ĐOẠN MÃ MỚI (thay thế cho toàn bộ hàm initGame cũ)
 async function initGame() {
-    // Khai báo các biến DOM element ở đây để đảm bảo HTML đã sẵn sàng
-    const gameScreen = document.getElementById('game-screen');
-    const pauseMenu = document.getElementById('pause-menu');
-    const zoomPopup = document.getElementById('zoom-popup');
-    const monsterIcon = document.getElementById('monster-icon');
-    const healthBarFill = document.getElementById('health-bar-fill');
-    const hpText = document.getElementById('hp-text');
-    const monsterName = document.getElementById('monster-name');
-    const levelDisplay = document.getElementById('level-display');
-    const goldDisplay = document.getElementById('gold-display');
-    const gemDisplay = document.getElementById('gem-display');
-    const clickDamageDisplay = document.getElementById('click-damage-display');
-    const clickUpgradesContainer = document.getElementById('click-upgrades');
-    const dpsUpgradesContainer = document.getElementById('dps-upgrades');
-    const economyUpgradesContainer = document.getElementById('economy-upgrades');
-    const skillUpgradesContainer = document.getElementById('skill-upgrades');
-    const albumGrid = document.getElementById('album-grid');
-    const gemUpgradesContainer = document.getElementById('gem-upgrades-container');
-    const screenOverlay = document.getElementById('screen-overlay');
-    const particleContainer = document.getElementById('particle-container');
-    const equipSkillModal = document.getElementById('equip-skill-modal');
+    // Gán giá trị cho các biến DOM element (đã được khai báo toàn cục)
+    gameScreen = document.getElementById('game-screen');
+    pauseMenu = document.getElementById('pause-menu');
+    zoomPopup = document.getElementById('zoom-popup');
+    monsterIcon = document.getElementById('monster-icon');
+    healthBarFill = document.getElementById('health-bar-fill');
+    hpText = document.getElementById('hp-text');
+    monsterName = document.getElementById('monster-name');
+    levelDisplay = document.getElementById('level-display');
+    goldDisplay = document.getElementById('gold-display');
+    gemDisplay = document.getElementById('gem-display');
+    clickDamageDisplay = document.getElementById('click-damage-display');
+    clickUpgradesContainer = document.getElementById('click-upgrades');
+    dpsUpgradesContainer = document.getElementById('dps-upgrades');
+    economyUpgradesContainer = document.getElementById('economy-upgrades');
+    skillUpgradesContainer = document.getElementById('skill-upgrades');
+    albumGrid = document.getElementById('album-grid');
+    gemUpgradesContainer = document.getElementById('gem-upgrades-container');
+    screenOverlay = document.getElementById('screen-overlay');
+    particleContainer = document.getElementById('particle-container');
+    equipSkillModal = document.getElementById('equip-skill-modal');
 
-    // Gán giá trị cho monsterContainerRect sau khi có DOM element
+    // Gán giá trị cho monsterContainerRect ngay sau khi có DOM element
     monsterContainerRect = document.getElementById('monster-container').getBoundingClientRect();
 
     await loadAlbumsData();
     loadGame();
     
-    // Khởi tạo các nâng cấp nếu chưa có trong save data
+    // Khởi tạo các nâng cấp
     for (const type in GAME_DATA.upgrades) {
         GAME_DATA.upgrades[type].forEach(item => {
             if (!gameState.upgrades[item.id]) {
@@ -205,17 +213,9 @@ async function initGame() {
         });
     }
     if (!gameState.gemUpgrades) gameState.gemUpgrades = {};
-    GAME_DATA.gemUpgrades.forEach(item => {
-        if (!gameState.gemUpgrades[item.id]) {
-                gameState.gemUpgrades[item.id] = { level: 0 };
-        }
-    });
+    GAME_DATA.gemUpgrades.forEach(item => { if (!gameState.gemUpgrades[item.id]) gameState.gemUpgrades[item.id] = { level: 0 }; });
     if (!gameState.albums) gameState.albums = {};
-    GAME_DATA.albums.forEach(item => {
-        if (!gameState.albums[item.id]) {
-            gameState.albums[item.id] = { unlocked: false };
-        }
-    });
+    GAME_DATA.albums.forEach(item => { if (!gameState.albums[item.id]) gameState.albums[item.id] = { unlocked: false }; });
 
     recalculateStats();
     generateMonster();
@@ -223,12 +223,12 @@ async function initGame() {
     // Bắt đầu các vòng lặp và cập nhật UI
     startDpsTimers();
     startSkillCooldownTimer();
-    updateUI(); // Gọi updateUI để render tất cả
+    updateUI();
     
     // Ẩn các menu popup ban đầu
     pauseMenu.style.display = 'none';
     if(zoomPopup) zoomPopup.style.display = 'none';
-    if (equipModal) equipModal.style.display = 'none';
+    if (equipSkillModal) equipSkillModal.style.display = 'none';
     
     gameScreen.style.display = 'flex';
     
@@ -1365,3 +1365,4 @@ function handleKeyPress(event) {
 showSubTab('click-upgrades');
 showTab('upgrade');
 initGame();
+
