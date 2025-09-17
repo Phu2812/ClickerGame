@@ -195,9 +195,6 @@ async function initGame() {
     loadGame();
     
     ['click', 'dps', 'economy', 'skill'].forEach(type => {
-        if (!gameState.upgrades[type]) {
-             gameState.upgrades[type] = {};
-        }
         GAME_DATA.upgrades[type].forEach(item => {
             if (!gameState.upgrades[item.id]) {
                 gameState.upgrades[item.id] = { level: 0 };
@@ -265,7 +262,7 @@ function handleMonsterClick(event) {
     let baseDamage = gameState.damagePerClick;
     
     if (gameState.activeSkills['rage-mode']) {
-        baseDamage *= 5;
+        baseDamage *= gameState.activeSkills['rage-mode'];
     }
     
     const doubleTapLevel = gameState.upgrades['double-tap']?.level || 0;
@@ -426,7 +423,7 @@ function defeatMonster() {
     goldReward *= (1 + goldBonus);
 
     if (gameState.activeSkills['gold-rush']) {
-        goldReward *= 2;
+        goldReward *= gameState.activeSkills['gold-rush'];
     }
 
     if (gameState.level % 10 === 0) { 
@@ -526,7 +523,7 @@ function buyAlbum(id) {
         gameState.albums[id].unlocked = true;
         
         updateUI();
-        renderAlbums(); // <-- THÊM DÒNG NÀY ĐỂ CẬP NHẬT GIAO DIỆN NGAY LẬP TỨC
+        renderAlbums();
         saveGame();
     } else {
         showNotification("Không đủ vàng!", "error");
@@ -662,7 +659,7 @@ function renderUpgradeCard(upgrade, container) {
     const currentLevel = gameState.upgrades[upgrade.id]?.level || 0;
     const maxLevel = upgrade.maxLevel || Infinity;
     const isMaxLevel = currentLevel >= maxLevel;
-    const currentCost = Math.round(upgrade.cost * Math.pow(1.15, currentLevel));
+    const currentCost = Math.round(upgrade.cost * Math.pow(1.5, currentLevel));
     const canAfford = gameState.gold >= currentCost && !isMaxLevel;
     const buttonClass = canAfford ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-gray-700 cursor-not-allowed';
     
@@ -1186,13 +1183,13 @@ function zoomImage(imageSrc) {
     const zoomImageElement = document.getElementById('zoom-image');
     zoomImageElement.src = imageSrc;
     zoomPopup.style.display = 'flex';
-    gameScreen.style.display = 'none'; // <-- THÊM DÒNG NÀY ĐỂ ẨN GIAO DIỆN GAME
+    gameScreen.style.display = 'none';
 }
 
 function closeZoomPopup() {
     if(!zoomPopup) return;
     zoomPopup.style.display = 'none';
-    gameScreen.style.display = 'flex'; // <-- THÊM DÒNG NÀY ĐỂ HIỆN LẠI GIAO DIỆN GAME
+    gameScreen.style.display = 'flex';
 }
 
 function findUpgradeData(id) {
@@ -1266,6 +1263,7 @@ const equipSkillModal = document.getElementById('equip-skill-modal');
 function openEquipModal(skillId) {
     skillToEquip = skillId;
     const modalSlotsContainer = document.getElementById('modal-skill-slots');
+    if (!modalSlotsContainer) return;
     modalSlotsContainer.innerHTML = '';
 
     for (let i = 0; i < 3; i++) {
@@ -1303,7 +1301,7 @@ function equipSkill(skillId, slotIndex) {
     saveGame();
 }
 
-function unequipSkill(slotIndex) {
+function unequipSkill(event, slotIndex) {
     event.preventDefault(); // Ngăn menu chuột phải hiện ra
     if (gameState.skillSlots[slotIndex]) {
         gameState.skillSlots[slotIndex] = null;
@@ -1332,4 +1330,3 @@ function handleKeyPress(event) {
 showSubTab('click-upgrades');
 showTab('upgrade');
 initGame();
-
