@@ -224,7 +224,7 @@ async function initGame() {
     startSkillCooldownTimer();
     
     pauseMenu.style.display = 'none';
-    zoomPopup.style.display = 'none';
+    if(zoomPopup) zoomPopup.style.display = 'none';
     const equipModal = document.getElementById('equip-skill-modal');
     if (equipModal) equipModal.style.display = 'none';
     
