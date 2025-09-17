@@ -6,305 +6,133 @@ body {
     color: #ffffff;
     overflow: hidden;
     user-select: none;
+    height: 100vh;
+    width: 100vw;
 }
 
-.gradient-text {
-    background: linear-gradient(90deg, #8a2be2, #4b0082);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.glow-button {
-    transition: all 0.3s ease;
-    box-shadow: 0 0 5px #4b0082, 0 0 10px #8a2be2;
-}
-
-.glow-button:hover {
-    box-shadow: 0 0 10px #4b0082, 0 0 20px #8a2be2, 0 0 30px #4b0082;
-}
-
-.scroll-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.scroll-container::-webkit-scrollbar-track {
-    background: #1f2937;
-}
-
-.scroll-container::-webkit-scrollbar-thumb {
-    background-color: #8a2be2;
-    border-radius: 4px;
-}
-
-#health-bar-fill {
-    transition: width 0.3s ease-out;
-}
-
-.damage-number {
-    position: absolute;
-    font-weight: bold;
-    animation: float-up 1s forwards, fade-out 1s forwards;
-    pointer-events: none;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-}
-
-.damage-number-crit {
-    font-size: 2rem;
-    color: #ff4500; /* OrangeRed */
-}
-
-.damage-number-dot-fire {
-    font-size: 1.2rem;
-    color: #ff0000;
-}
-
-.damage-number-dot-poison {
-    font-size: 1.2rem;
-    color: #32cd32;
-}
-
-.damage-number-dot-mage {
-     font-size: 1.4rem;
-     font-weight: bold;
-     color: #bf00ff;
-}
-
-.damage-number-dps {
-    font-size: 1rem;
-    color: #b0c4de;
-}
-
-.damage-number-swordsman {
-    color: #add8e6; /* LightBlue */
-}
-
-.damage-number-mage {
-    color: #8a2be2; /* BlueViolet */
-}
-
-.damage-number-archer {
-    color: #90ee90; /* LightGreen */
-}
-
-.damage-number-hunter {
-    color: #ffd700; /* Gold */
-}
-
-.damage-number-pet {
-    color: #ff69b4; /* HotPink */
-}
-
-.damage-number-gold {
-    font-size: 1.2rem;
-    color: #ffd700;
-    font-weight: bold;
-}
-
-.damage-number-gem {
-    font-size: 1.2rem;
-    color: #00ffff;
-    font-weight: bold;
-}
-
-.damage-number-skill {
-    font-size: 1.5rem;
-    color: #ff8c00; /* DarkOrange */
-}
-
-.damage-number-lightning {
-    font-size: 1.3rem;
-    color: #f0e68c; /* Khaki */
-}
-
-.monster-frozen {
-    filter: drop-shadow(0 0 10px #00ffff) brightness(1.2);
-    transition: filter 0.3s ease;
-}
-
-@keyframes float-up {
-    from { transform: translateY(0); opacity: 1; }
-    to { transform: translateY(-50px); opacity: 0; }
-}
-
-@keyframes fade-out {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-
-.album-image-container {
-    position: relative;
-}
-
-.locked-image {
-    filter: blur(5px) grayscale(100%);
-    transition: filter 0.5s ease;
-}
-
-.unlocked-image {
-    filter: none;
-    transition: filter 0.5s ease;
-}
-
-.boss-glow {
-    animation: boss-pulse 2s infinite alternate;
-}
-
-@keyframes boss-pulse {
-    from { filter: drop-shadow(0 0 5px #ff0000); }
-    to { filter: drop-shadow(0 0 15px #ff0000); }
-}
-
-.skill-cooldown-bar {
-    height: 4px;
-    background-color: #4b0082;
-    transition: width 0.3s linear;
-}
-
-.monster-icon {
-    font-size: 10rem;
-    color: #fff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-.boss-icon {
-    font-size: 12rem;
-    color: #ff0000;
-    text-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 0 0 25px rgba(255, 0, 0, 0.6);
-}
-
-#notification-container {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1000;
+/* --- BỐ CỤC CHÍNH --- */
+#game-container {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    height: 100%;
+}
+#top-bar {
+    flex-shrink: 0; /* Không co lại */
+    padding: 0.5rem 1rem;
+}
+#main-content {
+    flex-grow: 1; /* Chiếm hết không gian còn lại */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; /* Phân bổ không gian */
+    align-items: center;
+    padding: 1rem;
+    min-height: 0; /* Fix lỗi flexbox trên một số trình duyệt */
+}
+#bottom-menu {
+    flex-shrink: 0;
+    max-height: 45vh; /* Giới hạn chiều cao menu */
 }
 
-.notification {
-    padding: 1rem;
-    border-radius: 0.5rem;
-    color: white;
-    min-width: 250px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    animation: slide-in 0.5s forwards, slide-out 0.5s 2.5s forwards;
+/* --- KHU VỰC QUÁI VẬT --- */
+#monster-area {
+    width: 90%;
+    max-width: 400px;
 }
+#health-bar-container {
+    height: 1.75rem;
+}
+#monster-container {
+    width: 60vw; /* Responsive theo chiều rộng màn hình */
+    height: 60vw;
+    max-width: 256px; /* Giới hạn kích thước tối đa */
+    max-height: 256px;
+}
+.monster-icon, .boss-icon {
+    font-size: clamp(8rem, 25vw, 12rem); /* Kích thước font linh hoạt */
+}
+#monster-name {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+/* --- THANH KỸ NĂNG --- */
+#skill-bar-container {
+    padding-top: 1rem;
+    order: 2; /* Luôn nằm cuối trong main-content */
+}
+.skill-slot {
+    width: 56px;
+    height: 56px;
+    font-size: 1.75rem;
+}
+
+
+/* --- CÁC NÂNG CẤP --- */
+#click-upgrades, #dps-upgrades, #economy-upgrades {
+    grid-template-columns: 1fr; /* Mặc định 1 cột cho mobile */
+}
+
+/* --- MEDIA QUERY CHO MÀN HÌNH LỚN --- */
+@media (min-width: 768px) {
+    #click-upgrades, #dps-upgrades, #economy-upgrades {
+        grid-template-columns: 1fr 1fr; /* 2 cột cho màn hình lớn hơn */
+    }
+    .skill-slot {
+        width: 64px;
+        height: 64px;
+        font-size: 2rem;
+    }
+    #main-content {
+        justify-content: center;
+        gap: 2rem;
+    }
+    #skill-bar-container {
+       position: static; /* Gỡ bỏ định vị tuyệt đối */
+       order: 2;
+       padding-top: 0;
+       margin-top: 2rem;
+    }
+    #bottom-menu {
+        max-height: 40vh;
+    }
+}
+
+/* --- CÁC STYLE CŨ (giữ nguyên và điều chỉnh) --- */
+.gradient-text { background: linear-gradient(90deg, #8a2be2, #4b0082); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.glow-button { transition: all 0.3s ease; box-shadow: 0 0 5px #4b0082, 0 0 10px #8a2be2; }
+.glow-button:hover { box-shadow: 0 0 10px #4b0082, 0 0 20px #8a2be2, 0 0 30px #4b0082; }
+.scroll-container::-webkit-scrollbar { width: 8px; }
+.scroll-container::-webkit-scrollbar-track { background: #1f2937; }
+.scroll-container::-webkit-scrollbar-thumb { background-color: #8a2be2; border-radius: 4px; }
+#health-bar-fill { transition: width 0.3s ease-out; }
+.damage-number { position: absolute; font-weight: bold; animation: float-up 1s forwards, fade-out 1s forwards; pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+.damage-number-crit { font-size: 2rem; color: #ff4500; }
+.damage-number-dot-fire { font-size: 1.2rem; color: #ff0000; }
+.damage-number-dot-poison { font-size: 1.2rem; color: #32cd32; }
+.damage-number-dot-mage { font-size: 1.4rem; font-weight: bold; color: #bf00ff; }
+.damage-number-swordsman { color: #add8e6; }
+.damage-number-mage { color: #8a2be2; }
+.damage-number-archer { color: #90ee90; }
+.damage-number-hunter { color: #ffd700; }
+.damage-number-pet { color: #ff69b4; }
+.damage-number-gold { font-size: 1.2rem; color: #ffd700; font-weight: bold; }
+.damage-number-gem { font-size: 1.2rem; color: #00ffff; font-weight: bold; }
+.damage-number-skill { font-size: 1.5rem; color: #ff8c00; }
+.damage-number-lightning { font-size: 1.3rem; color: #f0e68c; }
+.monster-frozen { filter: drop-shadow(0 0 10px #00ffff) brightness(1.2); transition: filter 0.3s ease; }
+@keyframes float-up { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-50px); opacity: 0; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+.boss-icon { color: #ff0000; text-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 0 0 25px rgba(255, 0, 0, 0.6); }
+#notification-container { position: fixed; top: 1rem; right: 1rem; z-index: 1000; display: flex; flex-direction: column; gap: 0.5rem; }
+.notification { padding: 1rem; border-radius: 0.5rem; color: white; min-width: 250px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); animation: slide-in 0.5s forwards, slide-out 0.5s 2.5s forwards; }
 .notification.info { background-color: #2563eb; }
 .notification.success { background-color: #16a34a; }
 .notification.error { background-color: #dc2626; }
-
-@keyframes slide-in {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-@keyframes slide-out {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-}
-
-.screen-effect-overlay {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 999;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-.screen-effect-overlay.firestorm {
-    background: radial-gradient(circle, rgba(255,100,0,0.5) 0%, rgba(255,0,0,0) 70%);
-    animation: firestorm-pulse 0.5s 2;
-}
-@keyframes firestorm-pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.8; } }
-
-.screen-effect-overlay.gold-rush {
-    background-color: rgba(255, 215, 0, 0.1);
-}
-
-.screen-effect-overlay.rage-mode {
-    background-color: rgba(255, 0, 0, 0.1);
-    animation: rage-shake 0.1s infinite;
-}
-@keyframes rage-shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, 1px); } }
-
-#particle-container {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1000;
-}
-.particle {
-    position: absolute;
-    animation: fall 3s linear forwards;
-    font-size: 1.5rem;
-}
-@keyframes fall { from { top: -10%; opacity: 1; } to { top: 110%; opacity: 0; } }
-
-/* --- STYLE CHO THANH KỸ NĂNG --- */
-/* Sửa vị trí thanh kỹ năng */
-#skill-bar-container {
-    bottom: 416px; /* Tăng khoảng cách từ đáy lên */
-    transition: bottom 0.5s ease;
-}
-.skill-slot {
-    width: 64px;
-    height: 64px;
-    background-color: #1f2937;
-    border: 2px solid #4b5563;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
-    color: #6b7280;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.2s ease;
-}
-
-.skill-slot:hover {
-    border-color: #8a2be2;
-    transform: scale(1.05);
-}
-
-.skill-slot .skill-icon {
-    color: #e5e7eb;
-}
-
-.skill-keybind {
-    position: absolute;
-    bottom: 2px;
-    right: 5px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #a5b4fc;
-    text-shadow: 1px 1px 2px black;
-}
-
-.skill-cooldown-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 1.5rem;
-    font-weight: bold;
-    pointer-events: none;
-    clip-path: inset(100% 0 0 0); /* Bắt đầu ẩn */
-    transition: clip-path 0.1s linear;
-}
-
-.skill-slot.on-cooldown {
-    filter: grayscale(80%);
-}
-
+@keyframes slide-in { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slide-out { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+.screen-effect-overlay { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; opacity: 0; transition: opacity 0.5s ease; }
+.skill-slot:hover { border-color: #8a2be2; transform: scale(1.05); }
+.skill-slot .skill-icon { color: #e5e7eb; }
+.skill-keybind { position: absolute; bottom: 2px; right: 5px; font-size: 0.8rem; font-weight: bold; color: #a5b4fc; text-shadow: 1px 1px 2px black; }
+.skill-cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; color: white; font-size: 1.5rem; font-weight: bold; pointer-events: none; clip-path: inset(100% 0 0 0); transition: clip-path 0.1s linear; }
+.skill-slot.on-cooldown { filter: grayscale(80%); }
