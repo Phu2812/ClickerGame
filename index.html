@@ -19,18 +19,20 @@
     
     <div id="game-container" class="w-screen h-screen flex flex-col">
         
-        <header id="top-bar" class="w-full p-4 flex justify-between items-start text-sm z-50">
+        <header id="top-bar" class="w-full p-4 flex justify-between items-center text-sm z-50">
             <div class="flex flex-col items-start space-y-1">
                 <span id="level-display" class="text-lg font-bold gradient-text">Level 1</span>
                 <span id="gold-display" class="text-yellow-400">💰 0 Gold</span>
                 <span id="gem-display" class="text-cyan-400">💎 0 Gems</span>
             </div>
-            <div class="flex flex-col items-end space-y-1">
-                <span id="click-damage-display">🖱️ Click DMG: 1</span>
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col items-end space-y-1">
+                    <span id="click-damage-display">🖱️ Click DMG: 1</span>
+                </div>
+                <button id="pause-button" class="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
             </div>
-            <button id="pause-button" class="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
         </header>
 
         <main id="main-content" class="flex-grow flex flex-col justify-center items-center relative">
@@ -46,13 +48,13 @@
             </div>
 
             <div id="skill-bar-container" class="flex justify-center items-center gap-4 z-10 w-full">
-                <div id="skill-slot-0" class="skill-slot" onclick="activateSkillFromSlot(0)" oncontextmenu="unequipSkill(0); return false;">
+                <div id="skill-slot-0" class="skill-slot" onclick="activateSkillFromSlot(0)" oncontextmenu="unequipSkill(event, 0)">
                     <i class="fas fa-plus"></i><div class="skill-cooldown-overlay"></div><span class="skill-keybind">1</span>
                 </div>
-                <div id="skill-slot-1" class="skill-slot" onclick="activateSkillFromSlot(1)" oncontextmenu="unequipSkill(1); return false;">
+                <div id="skill-slot-1" class="skill-slot" onclick="activateSkillFromSlot(1)" oncontextmenu="unequipSkill(event, 1)">
                     <i class="fas fa-plus"></i><div class="skill-cooldown-overlay"></div><span class="skill-keybind">2</span>
                 </div>
-                <div id="skill-slot-2" class="skill-slot" onclick="activateSkillFromSlot(2)" oncontextmenu="unequipSkill(2); return false;">
+                <div id="skill-slot-2" class="skill-slot" onclick="activateSkillFromSlot(2)" oncontextmenu="unequipSkill(event, 2)">
                     <i class="fas fa-plus"></i><div class="skill-cooldown-overlay"></div><span class="skill-keybind">3</span>
                 </div>
             </div>
@@ -67,7 +69,7 @@
 
             <div id="upgrade-tab" class="tab-content scroll-container h-80 overflow-y-auto">
                 <div class="flex justify-around bg-gray-800 p-2 rounded-t-md">
-                    <button class="sub-tab-button flex-1 text-center p-2 rounded-md font-bold text-sm" onclick="showSubTab('click-upgrades')">Click</button>
+                    <button class="sub-tab-button flex-1 text-center p-2 rounded-md font-bold text-sm text-white bg-gray-700" onclick="showSubTab('click-upgrades')">Click</button>
                     <button class="sub-tab-button flex-1 text-center p-2 rounded-md text-gray-400" onclick="showSubTab('dps-upgrades')">DPS</button>
                     <button class="sub-tab-button flex-1 text-center p-2 rounded-md text-gray-400" onclick="showSubTab('economy-upgrades')">Kinh tế</button>
                     <button class="sub-tab-button flex-1 text-center p-2 rounded-md text-gray-400" onclick="showSubTab('skill-upgrades')">Kỹ năng</button>
@@ -87,18 +89,42 @@
                 <div class="flex justify-around mb-4">
                     <button class="filter-button p-2 text-sm md:text-base flex-1 mx-1 rounded-md bg-gray-700" onclick="filterAlbums('all')">Tất cả</button>
                     <button class="filter-button p-2 text-sm md:text-base flex-1 mx-1 rounded-md bg-gray-800" onclick="filterAlbums('Common')">Common</button>
-                    </div>
+                    <button class="filter-button p-2 text-sm md:text-base flex-1 mx-1 rounded-md bg-gray-800" onclick="filterAlbums('Rare')">Rare</button>
+                    <button class="filter-button p-2 text-sm md:text-base flex-1 mx-1 rounded-md bg-gray-800" onclick="filterAlbums('Epic')">Epic</button>
+                    <button class="filter-button p-2 text-sm md:text-base flex-1 mx-1 rounded-md bg-gray-800" onclick="filterAlbums('Legendary')">Legendary</button>
+                </div>
                 <div id="album-grid" class="grid grid-cols-3 gap-4"></div>
             </div>
         </footer>
     </div>
     
     <div id="pause-menu" class="fixed inset-0 bg-gray-900 bg-opacity-95 hidden items-center justify-center transition-opacity duration-500 z-50">
+        <div class="p-8 bg-gray-800 rounded-lg shadow-lg text-center space-y-4">
+            <h2 class="text-3xl font-bold gradient-text">Menu</h2>
+            <button class="w-full p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-all glow-button" onclick="resumeGame()">Tiếp tục game</button>
+            <button class="w-full p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-all glow-button" onclick="exportSaveData()">Xuất dữ liệu</button>
+            <button class="w-full p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-all glow-button" onclick="importSaveData()">Nhập dữ liệu</button>
         </div>
+    </div>
+    
     <div id="zoom-popup" class="fixed inset-0 bg-gray-900 bg-opacity-95 hidden items-center justify-center transition-opacity duration-500 z-50">
+        <div class="relative p-4 bg-gray-800 rounded-lg shadow-lg">
+            <img id="zoom-image" src="" alt="Zoomed image" class="max-w-[80vw] max-h-[80vh] object-contain">
+            <button class="absolute top-2 right-2 p-2 rounded-full bg-red-600 hover:bg-red-500 transition-all" onclick="closeZoomPopup()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
+    </div>
+
     <div id="equip-skill-modal" class="fixed inset-0 bg-gray-900 bg-opacity-95 hidden items-center justify-center transition-opacity duration-500 z-50">
+        <div class="p-8 bg-gray-800 rounded-lg shadow-lg text-center space-y-4">
+            <h2 class="text-2xl font-bold text-indigo-300">Chọn ô để trang bị kỹ năng</h2>
+            <div id="modal-skill-slots" class="flex justify-center items-center gap-4"></div>
+            <button class="w-full mt-4 p-3 bg-red-600 rounded-lg hover:bg-red-500 transition-all" onclick="closeEquipModal()">Hủy</button>
         </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
