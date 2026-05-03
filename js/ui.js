@@ -28,10 +28,10 @@ function renderUpgrades() {
         if(containers[type]) {
             containers[type].innerHTML = '';
             if (type === 'click') {
-                containers[type].innerHTML += `<h2 class="col-span-1 md:col-span-2 text-xl font-cinzel font-bold text-purple-300 border-b border-purple-500/30 pb-2 mb-4">Cá nhân (Click)</h2>`;
+                containers[type].innerHTML += `<h2 class="text-xl font-cinzel font-bold text-purple-300 border-b border-purple-500/30 pb-2 mb-4">Cá nhân (Click)</h2>`;
                 GAME_DATA.upgrades.click.filter(u => u.category === 'pure').forEach(upgrade => renderUpgradeCard(upgrade, containers[type]));
                 
-                containers[type].innerHTML += `<h2 class="col-span-1 md:col-span-2 text-xl font-cinzel font-bold text-fuchsia-300 border-b border-fuchsia-500/30 pb-2 mb-4 mt-6">Nguyên Tố Ma Thuật</h2>`;
+                containers[type].innerHTML += `<h2 class="text-xl font-cinzel font-bold text-fuchsia-300 border-b border-fuchsia-500/30 pb-2 mb-4 mt-6">Nguyên Tố Ma Thuật</h2>`;
                 GAME_DATA.upgrades.click.filter(u => u.category === 'elemental').forEach(upgrade => renderUpgradeCard(upgrade, containers[type]));
             } else {
                 GAME_DATA.upgrades[type].forEach(upgrade => renderUpgradeCard(upgrade, containers[type]));
