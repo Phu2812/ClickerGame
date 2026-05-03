@@ -2,7 +2,7 @@ let activeParticleInterval = null;
 
 async function loadAlbumsData() {
     try {
-        const response = await fetch('images.json');
+        const response = await fetch(`images.json?t=${Date.now()}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
