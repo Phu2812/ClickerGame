@@ -142,7 +142,7 @@
         </div>
 
         <!-- CENTER COLUMN: Monster Area -->
-        <div class="flex flex-col items-center justify-center flex-shrink-0 md:flex-grow md:shrink relative md:min-h-0 z-10 py-1 md:py-0">
+        <div class="flex flex-col items-center justify-start md:justify-center flex-shrink-0 md:flex-grow md:shrink relative md:min-h-0 z-10">
             <button id="pause-button" class="absolute top-0 right-2 p-1.5 md:p-3 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition z-50 text-base md:text-xl border border-white/10 backdrop-blur-md bg-black/20" title="Tạm dừng">
                 <i class="fa-solid fa-pause"></i>
             </button>
@@ -158,11 +158,12 @@
                 </div>
                 
                 <div class="relative flex items-center justify-center">
-                    <div class="absolute bottom-[-6px] w-40 md:w-64 h-10 md:h-16 bg-fuchsia-900/40 blur-2xl rounded-[100%] shadow-[0_0_60px_rgba(217,70,239,0.3)] mix-blend-screen pointer-events-none"></div>
-                    <div class="magic-circle absolute bottom-[-20px] md:bottom-[-40px] w-32 sm:w-48 md:w-64 h-10 sm:h-16 md:h-24 border border-purple-500/20 rounded-[100%] pointer-events-none"></div>
+                    <!-- Glow: desktop only -->
+                    <div class="hidden md:block absolute bottom-[-10px] w-64 h-16 bg-fuchsia-900/40 blur-2xl rounded-[100%] shadow-[0_0_60px_rgba(217,70,239,0.3)] mix-blend-screen pointer-events-none"></div>
+                    <div class="magic-circle hidden md:block absolute bottom-[-40px] w-64 h-24 border border-purple-500/20 rounded-[100%] pointer-events-none"></div>
                     
-                    <div id="monster-container" class="relative w-28 h-28 sm:w-36 sm:h-36 md:w-80 md:h-80 cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-100" onclick="handleMonsterClick(event)">
-                        <i id="monster-icon" class="monster-icon fas fa-frog drop-shadow-[0_0_40px_rgba(255,255,255,0.3)] text-6xl sm:text-7xl md:text-9xl"></i>
+                    <div id="monster-container" class="relative cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-100 md:w-80 md:h-80" onclick="handleMonsterClick(event)">
+                        <i id="monster-icon" class="monster-icon fas fa-frog drop-shadow-[0_0_40px_rgba(255,255,255,0.3)]"></i>
                     </div>
                 </div>
             </div>

@@ -148,6 +148,36 @@ body {
     animation: breathe 4s ease-in-out infinite;
 }
 
+/* Mobile: limit monster size to fit screen */
+@media (max-width: 767px) {
+    .monster-icon {
+        font-size: 5rem !important;
+        filter: drop-shadow(0 0 20px rgba(255,255,255,0.25));
+    }
+    .boss-icon {
+        font-size: 6rem !important;
+    }
+    /* Add a subtle glow shadow under monster on mobile */
+    #monster-container::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 10px;
+        background: radial-gradient(ellipse, rgba(168,85,247,0.5) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+}
+/* Tablet */
+@media (min-width: 640px) and (max-width: 767px) {
+    .monster-icon {
+        font-size: 7rem !important;
+    }
+}
+
 .boss-icon {
     font-size: 15rem;
     color: #ef4444;
