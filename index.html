@@ -99,7 +99,7 @@
     <!-- MÀN HÌNH GAME CHÍNH -->
     <div id="game-screen" class="relative w-screen h-screen flex flex-col md:flex-row transition-opacity duration-500 p-2 md:p-6 gap-2 md:gap-6 hidden">
         
-        <!-- LEFT COLUMN: Stats & Skills -->
+        <!-- LEFT COLUMN: Stats & Skills (desktop sidebar / mobile top bar) -->
         <div class="flex flex-col gap-2 md:gap-6 w-full md:w-[300px] lg:w-[350px] shrink-0 z-20">
             <!-- Stats Panel -->
             <div class="glass-panel p-4 md:p-6 flex md:flex-col justify-between items-center md:items-start gap-2 md:gap-4 shadow-lg shadow-purple-900/20">
@@ -142,15 +142,15 @@
         </div>
 
         <!-- CENTER COLUMN: Monster Area -->
-        <div class="flex flex-col items-center justify-center flex-grow shrink relative min-h-[30vh] md:min-h-0 z-10">
+        <div class="flex flex-col items-center justify-center flex-shrink-0 md:flex-grow md:shrink relative md:min-h-0 z-10">
             <button id="pause-button" class="absolute top-0 right-4 p-2 md:p-3 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition z-50 text-xl border border-white/10 backdrop-blur-md bg-black/20" title="Tạm dừng">
                 <i class="fa-solid fa-pause"></i>
             </button>
             
             <div class="flex flex-col items-center">
-                <h2 id="monster-name" class="text-3xl md:text-5xl font-cinzel font-black mb-4 md:mb-6 text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)] tracking-widest uppercase text-center">Slime</h2>
+                <h2 id="monster-name" class="text-2xl md:text-5xl font-cinzel font-black mb-2 md:mb-6 text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)] tracking-widest uppercase text-center">Slime</h2>
                 
-                <div class="w-64 md:w-[450px] h-6 md:h-8 glass-panel rounded-full mb-6 md:mb-12 relative overflow-hidden border border-red-900/50 shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+                <div class="w-56 md:w-[450px] h-5 md:h-8 glass-panel rounded-full mb-3 md:mb-12 relative overflow-hidden border border-red-900/50 shadow-[0_0_15px_rgba(220,38,38,0.3)]">
                     <div id="health-bar-fill" class="h-full bg-gradient-to-r from-red-900 via-red-600 to-red-400 relative transition-all duration-300 ease-out" style="width: 100%;">
                         <div class="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-white/40 to-transparent blur-sm"></div>
                     </div>
@@ -162,15 +162,15 @@
                     <div class="absolute bottom-[-10px] w-64 h-16 bg-fuchsia-900/40 blur-2xl rounded-[100%] shadow-[0_0_60px_rgba(217,70,239,0.3)] mix-blend-screen pointer-events-none"></div>
                     <div class="magic-circle absolute bottom-[-30px] md:bottom-[-40px] w-48 md:w-64 h-16 md:h-24 border border-purple-500/20 rounded-[100%] pointer-events-none"></div>
                     
-                    <div id="monster-container" class="relative w-48 h-48 md:w-80 md:h-80 cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-100" onclick="handleMonsterClick(event)">
-                        <i id="monster-icon" class="monster-icon fas fa-frog drop-shadow-[0_0_40px_rgba(255,255,255,0.3)] text-8xl md:text-9xl"></i>
+                    <div id="monster-container" class="relative w-36 h-36 md:w-80 md:h-80 cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-100" onclick="handleMonsterClick(event)">
+                        <i id="monster-icon" class="monster-icon fas fa-frog drop-shadow-[0_0_40px_rgba(255,255,255,0.3)] text-7xl md:text-9xl"></i>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Mobile Skill Bar (Floating Bottom) -->
-        <div class="md:hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 w-[90%] glass-panel rounded-full p-2 flex justify-center gap-4">
+        <!-- MOBILE SKILL BAR (inline, between monster and upgrade panel) -->
+        <div class="md:hidden w-full glass-panel rounded-2xl px-4 py-2 flex justify-center items-center gap-4 shrink-0 z-20">
              <div id="mobile-skill-slot-0" class="skill-slot !w-14 !h-14 !rounded-full relative" onclick="activateSkillFromSlot(0)" oncontextmenu="unequipSkill(0); return false;">
                  <i class="fas fa-plus text-xl"></i><div class="skill-cooldown-overlay !rounded-full"></div>
              </div>
@@ -183,7 +183,7 @@
         </div>
 
         <!-- RIGHT COLUMN: Upgrades & Shop -->
-        <div class="glass-panel flex flex-col w-full md:w-[400px] lg:w-[450px] flex-grow md:flex-grow-0 min-h-0 md:h-full shrink-0 overflow-hidden relative z-30 shadow-lg shadow-black/50">
+        <div class="glass-panel flex flex-col w-full md:w-[400px] lg:w-[450px] flex-1 md:flex-grow-0 min-h-0 md:h-full shrink-0 overflow-hidden relative z-30 shadow-lg shadow-black/50">
             <!-- Tabs Header -->
             <div class="flex p-1 md:p-2 gap-1 md:gap-2 border-b border-white/10 bg-black/40 backdrop-blur-md">
                 <button class="tab-button flex-1 py-4 px-2 rounded-lg text-sm font-bold text-gray-400 hover:text-gray-200 transition-all duration-300 relative uppercase tracking-wider font-cinzel" onclick="showTab('upgrade')">
@@ -208,7 +208,7 @@
                         <button class="sub-tab-button w-full py-2 rounded-md text-[10px] md:text-xs font-bold text-gray-400 hover:text-white transition-colors whitespace-nowrap border border-transparent uppercase tracking-wider" onclick="showSubTab('skill-upgrades')">Tuyệt kỹ</button>
                     </div>
                     
-                    <div class="flex-grow overflow-y-auto scroll-container p-2 md:p-4 pb-[120px] md:pb-4">
+                    <div class="flex-grow overflow-y-auto scroll-container p-2 md:p-4">
                         <div id="click-upgrades" class="sub-tab-content grid grid-cols-1 gap-4"></div>
                         <div id="dps-upgrades" class="sub-tab-content hidden grid grid-cols-1 gap-4"></div>
                         <div id="economy-upgrades" class="sub-tab-content hidden grid grid-cols-1 gap-4"></div>
@@ -217,7 +217,7 @@
                 </div>
 
                 <!-- Gem Shop Tab -->
-                <div id="gem-shop-tab" class="tab-content absolute inset-0 overflow-y-auto scroll-container p-2 md:p-4 pb-[120px] md:pb-4 hidden">
+                <div id="gem-shop-tab" class="tab-content absolute inset-0 overflow-y-auto scroll-container p-2 md:p-4 hidden">
                     <div id="gem-upgrades-container" class="grid grid-cols-1 gap-4"></div>
                 </div>
                 
@@ -230,7 +230,7 @@
                         <button class="filter-button flex-shrink-0 px-4 py-2 rounded-md text-xs font-bold whitespace-nowrap text-purple-400 hover:bg-purple-900/30" onclick="filterAlbums('Epic')">Epic</button>
                         <button class="filter-button flex-shrink-0 px-4 py-2 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap text-yellow-400 hover:bg-yellow-900/30" onclick="filterAlbums('Legendary')">Legendary</button>
                     </div>
-                    <div class="flex-grow overflow-y-auto scroll-container p-2 md:p-4 pb-[120px] md:pb-4">
+                    <div class="flex-grow overflow-y-auto scroll-container p-2 md:p-4">
                         <div id="album-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-4"></div>
                     </div>
                 </div>
