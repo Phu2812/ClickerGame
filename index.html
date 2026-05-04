@@ -183,7 +183,7 @@
         </div>
 
         <!-- RIGHT COLUMN: Upgrades & Shop -->
-        <div class="glass-panel flex flex-col w-full md:w-[400px] lg:w-[450px] flex-grow md:flex-grow-0 min-h-0 md:h-full shrink-0 overflow-hidden relative z-30 mb-[70px] md:mb-0 shadow-lg shadow-black/50">
+        <div class="glass-panel flex flex-col w-full md:w-[400px] lg:w-[450px] flex-grow md:flex-grow-0 min-h-0 md:h-full shrink-0 overflow-hidden relative z-30 shadow-lg shadow-black/50">
             <!-- Tabs Header -->
             <div class="flex p-1 md:p-2 gap-1 md:gap-2 border-b border-white/10 bg-black/40 backdrop-blur-md">
                 <button class="tab-button flex-1 py-4 px-2 rounded-lg text-sm font-bold text-gray-400 hover:text-gray-200 transition-all duration-300 relative uppercase tracking-wider font-cinzel" onclick="showTab('upgrade')">
@@ -208,7 +208,7 @@
                         <button class="sub-tab-button w-full py-2 rounded-md text-[10px] md:text-xs font-bold text-gray-400 hover:text-white transition-colors whitespace-nowrap border border-transparent uppercase tracking-wider" onclick="showSubTab('skill-upgrades')">Tuyệt kỹ</button>
                     </div>
                     
-                    <div class="flex-grow overflow-y-auto scroll-container p-2 md:p-4 pb-10 md:pb-4">
+                    <div class="flex-grow overflow-y-auto scroll-container p-2 md:p-4 pb-[120px] md:pb-4">
                         <div id="click-upgrades" class="sub-tab-content grid grid-cols-1 gap-4"></div>
                         <div id="dps-upgrades" class="sub-tab-content hidden grid grid-cols-1 gap-4"></div>
                         <div id="economy-upgrades" class="sub-tab-content hidden grid grid-cols-1 gap-4"></div>
@@ -217,7 +217,7 @@
                 </div>
 
                 <!-- Gem Shop Tab -->
-                <div id="gem-shop-tab" class="tab-content absolute inset-0 overflow-y-auto scroll-container p-2 md:p-4 pb-10 md:pb-4 hidden">
+                <div id="gem-shop-tab" class="tab-content absolute inset-0 overflow-y-auto scroll-container p-2 md:p-4 pb-[120px] md:pb-4 hidden">
                     <div id="gem-upgrades-container" class="grid grid-cols-1 gap-4"></div>
                 </div>
                 
@@ -230,7 +230,7 @@
                         <button class="filter-button flex-shrink-0 px-4 py-2 rounded-md text-xs font-bold whitespace-nowrap text-purple-400 hover:bg-purple-900/30" onclick="filterAlbums('Epic')">Epic</button>
                         <button class="filter-button flex-shrink-0 px-4 py-2 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap text-yellow-400 hover:bg-yellow-900/30" onclick="filterAlbums('Legendary')">Legendary</button>
                     </div>
-                    <div class="flex-grow overflow-y-auto scroll-container p-2 md:p-4 pb-10 md:pb-4">
+                    <div class="flex-grow overflow-y-auto scroll-container p-2 md:p-4 pb-[120px] md:pb-4">
                         <div id="album-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-4"></div>
                     </div>
                 </div>
@@ -238,16 +238,31 @@
         </div>
     </div>
     
-    <div id="pause-menu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center transition-opacity duration-500 z-50">
-        <div class="p-10 glass-panel border border-white/20 shadow-2xl text-center space-y-6 max-w-sm w-full">
-            <h2 class="text-4xl font-cinzel font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">TẠM DỪNG</h2>
-            <div class="space-y-4 pt-4">
-                <button class="w-full p-4 glass-button font-bold text-lg uppercase tracking-wider" onclick="resumeGame()">Tiếp tục game</button>
-                <button class="w-full p-4 glass-button font-bold text-lg uppercase tracking-wider" onclick="exportSaveData()">Sao chép Save</button>
-                <button class="w-full p-4 glass-button font-bold text-lg uppercase tracking-wider" onclick="importSaveData()">Nhập dữ liệu</button>
+    <!-- PAUSE MENU -->
+    <div id="pause-menu" class="fixed inset-0 backdrop-blur-md bg-black/70 hidden items-center justify-center transition-opacity duration-300 z-50">
+        <div class="glass-panel p-8 border border-purple-500/20 shadow-[0_0_60px_rgba(0,0,0,0.9)] text-center max-w-sm w-full mx-4 relative overflow-hidden">
+            <!-- Glow accent -->
+            <div class="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-32 bg-purple-600/20 blur-3xl rounded-full pointer-events-none"></div>
+
+            <div class="text-5xl mb-4"><i class="fas fa-pause text-purple-400 drop-shadow-[0_0_20px_rgba(168,85,247,0.8)]"></i></div>
+            <h2 class="text-3xl font-cinzel font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-300 mb-1">TẠM DỪNG</h2>
+            <p id="pause-username-display" class="text-xs text-gray-500 uppercase tracking-widest mb-6 font-bold"></p>
+
+            <div class="space-y-3">
+                <button class="w-full py-4 glass-button font-bold text-base uppercase tracking-widest text-green-300 border-green-500/30 hover:border-green-400/60 hover:bg-green-900/30" onclick="resumeGame()">
+                    <i class="fas fa-play mr-2"></i>Tiếp tục
+                </button>
+                <button class="w-full py-4 glass-button font-bold text-base uppercase tracking-widest" onclick="saveGame(); showNotification('Game đã được lưu!', 'info')">
+                    <i class="fas fa-floppy-disk mr-2"></i>Lưu game
+                </button>
+                <div class="border-t border-white/10 my-1"></div>
+                <button class="w-full py-4 glass-button font-bold text-base uppercase tracking-widest text-red-400 border-red-500/30 hover:border-red-400/60 hover:bg-red-900/30" onclick="exitGame()">
+                    <i class="fas fa-right-from-bracket mr-2"></i>Đăng xuất
+                </button>
             </div>
         </div>
     </div>
+
     
     <div id="zoom-popup" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden items-center justify-center transition-opacity duration-500 z-[100]">
         <div class="relative p-2 glass-panel border border-white/10">

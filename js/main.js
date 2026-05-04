@@ -94,15 +94,21 @@ async function playOffline() {
 }
 
 // ============================================================
-// CLOUD SYNC — Only fires on tab hide / tab close
+// CLOUD SYNC — fires on tab hide/close AND on pause
 // ============================================================
 document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && currentUser) {
-        cloudSync(gameState);
+    if (document.visibilityState === 'hidden') {
+        // Always save locally
+        saveGame();
+        // Sync to cloud if logged in
+        if (currentUser) cloudSync(gameState);
+        // Auto-pause the game
+        if (!isPaused) pauseGame();
     }
 });
 
 window.addEventListener('beforeunload', () => {
+    saveGame();
     if (currentUser) cloudSync(gameState);
 });
 
@@ -306,12 +312,27 @@ function useSkill(id) {
 
 function pauseGame() {
     isPaused = true;
+    saveGame();
+    if (currentUser) cloudSync(gameState);
+    // Update username display in pause menu
+    const usernameEl = document.getElementById('pause-username-display');
+    if (usernameEl) usernameEl.textContent = currentUser ? `Đang chơi: ${currentUser}` : 'Chế độ ngoại tuyến';
     document.getElementById('pause-menu').style.display = 'flex';
 }
 
 function resumeGame() {
     isPaused = false;
     document.getElementById('pause-menu').style.display = 'none';
+}
+
+function exitGame() {
+    saveGame();
+    if (currentUser) {
+        cloudSync(gameState);
+        clearSession();
+    }
+    // Brief delay so cloudSync fires, then reload to show login screen
+    setTimeout(() => { window.location.reload(); }, 400);
 }
 
 function activateSkillFromSlot(slotIndex) {
