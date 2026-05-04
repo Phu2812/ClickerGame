@@ -517,3 +517,45 @@ function unequipSkill(slotIndex) {
         showNotification("Đã gỡ trang bị kỹ năng.", "info");
     }
 }
+
+// ==========================================
+// Sidebar Toggles
+// ==========================================
+let isDesktopSidebarOpen = true;
+
+function toggleSidebarDesktop() {
+    isDesktopSidebarOpen = !isDesktopSidebarOpen;
+    const sidebar = document.getElementById('right-sidebar');
+    const centerCol = document.getElementById('center-column');
+    const toggleBtn = document.getElementById('desktop-sidebar-toggle');
+    
+    if (isDesktopSidebarOpen) {
+        sidebar.classList.remove('md:translate-x-full');
+        sidebar.classList.add('md:translate-x-0');
+        centerCol.classList.add('md:pr-[400px]', 'lg:pr-[450px]');
+        toggleBtn.classList.add('bg-purple-900/40');
+    } else {
+        sidebar.classList.remove('md:translate-x-0');
+        sidebar.classList.add('md:translate-x-full');
+        centerCol.classList.remove('md:pr-[400px]', 'lg:pr-[450px]');
+        toggleBtn.classList.remove('bg-purple-900/40');
+    }
+}
+
+let isMobileSidebarOpen = false;
+
+function toggleSidebarMobile() {
+    isMobileSidebarOpen = !isMobileSidebarOpen;
+    const sidebar = document.getElementById('right-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (isMobileSidebarOpen) {
+        sidebar.classList.remove('translate-y-full');
+        sidebar.classList.add('translate-y-0');
+        overlay.classList.remove('hidden');
+    } else {
+        sidebar.classList.remove('translate-y-0');
+        sidebar.classList.add('translate-y-full');
+        overlay.classList.add('hidden');
+    }
+}
