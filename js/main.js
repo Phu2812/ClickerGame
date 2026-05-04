@@ -55,6 +55,7 @@ async function initGame() {
     recalculateStats();
     generateMonster();
     updateUI();
+    filterAlbums('all');
     startDpsTimers();
     startSkillCooldownTimer();
     
@@ -120,6 +121,7 @@ function buyAlbum(id) {
         }
         gameState.albums[id].unlocked = true;
         updateUI();
+        renderAlbums();
     } else {
         showNotification("Không đủ vàng!", "error");
     }
