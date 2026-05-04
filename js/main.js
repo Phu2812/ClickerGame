@@ -5,23 +5,27 @@ let activeParticleInterval = null;
 // ============================================================
 
 async function startApp() {
-    // Check auto-login first
+    // If a session was saved locally, try to restore data from Firestore
     if (checkAutoLogin()) {
-        const db = getMockCloudDB();
-        const userRecord = db.users[currentUser];
-        if (userRecord) {
-            const cloudData = userRecord.data;
+        try {
+            // Show a subtle loading indicator on the login screen
+            const btn = document.getElementById('btn-login');
+            if (btn) { btn.textContent = 'Đang kết nối...'; btn.disabled = true; }
+
+            const cloudData = await cloudAutoLogin(currentUser);
+            // cloudAutoLogin returns null on network error → falls back to loadGame()
             await initGame(cloudData);
             hideLoginScreen();
             return;
-        } else {
-            // Saved session but account gone, clear it
+        } catch (e) {
+            // Session invalid (account deleted, etc.) — clear and show login
             clearSession();
         }
     }
-    // Show login screen (already visible by default)
+    // Default: show login screen, focus username field
     document.getElementById('username-input').focus();
 }
+
 
 function hideLoginScreen() {
     const loginScreen = document.getElementById('login-screen');
