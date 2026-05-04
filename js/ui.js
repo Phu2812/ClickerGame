@@ -53,35 +53,35 @@ function renderUpgradeCardHTML(upgrade, container) {
 
     if (type === 'skill') {
         container.innerHTML += `
-            <div id="card-${upgrade.id}" class="glass-card p-4 flex flex-col md:flex-row items-center gap-4 relative group">
-                <div class="flex-shrink-0 text-fuchsia-400 text-4xl w-16 text-center drop-shadow-[0_0_8px_rgba(217,70,239,0.5)] group-hover:scale-110 transition-transform"><i class="${upgrade.icon}"></i></div>
-                <div class="flex-grow text-center md:text-left">
-                    <h3 class="font-bold font-cinzel text-lg text-fuchsia-300 tracking-wide">${upgrade.name}</h3>
-                    <p class="text-xs text-gray-400 mt-1 leading-relaxed">${description}</p>
-                    <p id="level-display-${upgrade.id}" class="text-xs mt-2 font-semibold text-gray-300"></p>
+            <div id="card-${upgrade.id}" class="glass-card p-2 sm:p-3 md:p-4 flex items-center gap-2 sm:gap-4 relative group">
+                <div class="flex-shrink-0 text-fuchsia-400 text-2xl sm:text-4xl w-10 sm:w-16 text-center drop-shadow-[0_0_8px_rgba(217,70,239,0.5)] group-hover:scale-110 transition-transform"><i class="${upgrade.icon}"></i></div>
+                <div class="flex-grow">
+                    <h3 class="font-bold font-cinzel text-sm sm:text-base md:text-lg text-fuchsia-300 tracking-wide">${upgrade.name}</h3>
+                    <p class="text-[9px] sm:text-xs text-gray-400 mt-0.5 leading-relaxed line-clamp-2">${description}</p>
+                    <p id="level-display-${upgrade.id}" class="text-[9px] sm:text-xs mt-1 font-semibold text-gray-300"></p>
                 </div>
-                <div class="flex-shrink-0 w-full md:w-32 lg:w-40">
-                     <button id="btn-buy-${upgrade.id}" class="w-full p-3 rounded-md glass-button font-bold text-sm tracking-widest uppercase" 
+                <div class="flex-shrink-0 w-20 sm:w-28 md:w-32">
+                     <button id="btn-buy-${upgrade.id}" class="w-full p-2 sm:p-3 rounded-md glass-button font-bold text-[10px] sm:text-sm tracking-widest uppercase" 
                              onclick="handleUpgradeClick('${upgrade.id}')">
                      </button>
                 </div>
             </div>`;
     } else {
-        const iconHtml = upgrade.upgradeIcon ? `<i class="${upgrade.upgradeIcon} mr-2"></i>` : (upgrade.icon ? `<i class="${upgrade.icon} mr-2"></i>` : '');
+        const iconHtml = upgrade.upgradeIcon ? `<i class="${upgrade.upgradeIcon} mr-1"></i>` : (upgrade.icon ? `<i class="${upgrade.icon} mr-1"></i>` : '');
         container.innerHTML += `
-            <div id="card-${upgrade.id}" class="glass-card p-4 flex flex-col justify-between h-full group">
+            <div id="card-${upgrade.id}" class="glass-card p-2 sm:p-3 md:p-4 flex flex-col justify-between group">
                 <div>
-                    <h3 class="font-bold font-cinzel text-lg text-purple-300 tracking-wide drop-shadow-[0_0_5px_rgba(216,180,254,0.3)]">${iconHtml}${upgrade.name}</h3>
-                    <p class="text-xs text-gray-400 mt-2 leading-relaxed">${description}</p>
-                    <div class="mt-3 space-y-1">
-                        <p id="level-display-${upgrade.id}" class="text-xs font-semibold text-gray-300"></p>
+                    <h3 class="font-bold font-cinzel text-sm sm:text-base md:text-lg text-purple-300 tracking-wide drop-shadow-[0_0_5px_rgba(216,180,254,0.3)]">${iconHtml}${upgrade.name}</h3>
+                    <p class="text-[9px] sm:text-xs text-gray-400 mt-1 leading-relaxed line-clamp-2">${description}</p>
+                    <div class="mt-1 sm:mt-2 space-y-0.5">
+                        <p id="level-display-${upgrade.id}" class="text-[9px] sm:text-xs font-semibold text-gray-300"></p>
                         <div id="extra-info-${upgrade.id}"></div>
-                        <p id="next-level-info-${upgrade.id}" class="text-xs font-bold text-yellow-400 mt-2 drop-shadow-md"></p>
+                        <p id="next-level-info-${upgrade.id}" class="text-[9px] sm:text-xs font-bold text-yellow-400 drop-shadow-md"></p>
                     </div>
                 </div>
-                <div class="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
-                    <span id="cost-text-${upgrade.id}" class="text-yellow-400 text-sm font-bold flex items-center gap-1 drop-shadow-md"></span>
-                    <button id="btn-buy-${upgrade.id}" class="px-4 py-2 rounded-md glass-button font-bold text-xs uppercase tracking-widest" onclick="handleUpgradeClick('${upgrade.id}')"></button>
+                <div class="mt-2 sm:mt-3 flex items-center justify-between border-t border-white/5 pt-2">
+                    <span id="cost-text-${upgrade.id}" class="text-yellow-400 text-[10px] sm:text-sm font-bold flex items-center gap-1 drop-shadow-md"></span>
+                    <button id="btn-buy-${upgrade.id}" class="px-2 sm:px-4 py-1.5 sm:py-2 rounded-md glass-button font-bold text-[9px] sm:text-xs uppercase tracking-widest" onclick="handleUpgradeClick('${upgrade.id}')"></button>
                 </div>
             </div>`;
     }
@@ -274,18 +274,18 @@ function initGemUpgrades() {
     gemUpgradesContainer.innerHTML = '';
     GAME_DATA.gemUpgrades.forEach(upgrade => {
         gemUpgradesContainer.innerHTML += `
-            <div id="gem-card-${upgrade.id}" class="glass-card p-4 flex flex-col md:flex-row items-center gap-4 relative group">
-                <div class="flex-shrink-0 text-cyan-400 text-4xl w-16 text-center drop-shadow-[0_0_8px_rgba(34,211,238,0.5)] group-hover:scale-110 transition-transform">
+            <div id="gem-card-${upgrade.id}" class="glass-card p-2 sm:p-3 md:p-4 flex items-center gap-2 sm:gap-4 relative group">
+                <div class="flex-shrink-0 text-cyan-400 text-2xl sm:text-4xl w-10 sm:w-16 text-center drop-shadow-[0_0_8px_rgba(34,211,238,0.5)] group-hover:scale-110 transition-transform">
                     <i class="${upgrade.icon}"></i>
                 </div>
-                <div class="flex-grow text-center md:text-left">
-                    <h3 class="font-bold font-cinzel text-lg text-cyan-300 tracking-wide">${upgrade.name}</h3>
-                    <p class="text-xs text-gray-400 mt-1 leading-relaxed">${upgrade.description}</p>
-                    <p id="gem-info-${upgrade.id}" class="text-xs mt-2 text-gray-300"></p>
-                    <p id="gem-next-${upgrade.id}" class="text-xs text-yellow-400 font-semibold mt-1"></p>
+                <div class="flex-grow">
+                    <h3 class="font-bold font-cinzel text-sm sm:text-base md:text-lg text-cyan-300 tracking-wide">${upgrade.name}</h3>
+                    <p class="text-[9px] sm:text-xs text-gray-400 mt-0.5 leading-relaxed line-clamp-2">${upgrade.description}</p>
+                    <p id="gem-info-${upgrade.id}" class="text-[9px] sm:text-xs mt-1 text-gray-300"></p>
+                    <p id="gem-next-${upgrade.id}" class="text-[9px] sm:text-xs text-yellow-400 font-semibold"></p>
                 </div>
-                <div class="flex-shrink-0 w-full md:w-32">
-                     <button id="btn-gem-buy-${upgrade.id}" class="w-full p-3 rounded-md glass-button font-bold text-sm tracking-widest uppercase flex flex-col items-center justify-center gap-1" onclick="buyGemUpgrade('${upgrade.id}')">
+                <div class="flex-shrink-0 w-20 sm:w-28 md:w-32">
+                     <button id="btn-gem-buy-${upgrade.id}" class="w-full p-2 sm:p-3 rounded-md glass-button font-bold text-[10px] sm:text-sm tracking-widest uppercase flex flex-col items-center justify-center gap-0.5" onclick="buyGemUpgrade('${upgrade.id}')">
                      </button>
                 </div>
             </div>
