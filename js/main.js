@@ -1,5 +1,110 @@
 let activeParticleInterval = null;
 
+// ============================================================
+// AUTH / LOGIN FLOW
+// ============================================================
+
+async function startApp() {
+    // Check auto-login first
+    if (checkAutoLogin()) {
+        const db = getMockCloudDB();
+        const userRecord = db.users[currentUser];
+        if (userRecord) {
+            const cloudData = userRecord.data;
+            await initGame(cloudData);
+            hideLoginScreen();
+            return;
+        } else {
+            // Saved session but account gone, clear it
+            clearSession();
+        }
+    }
+    // Show login screen (already visible by default)
+    document.getElementById('username-input').focus();
+}
+
+function hideLoginScreen() {
+    const loginScreen = document.getElementById('login-screen');
+    loginScreen.style.opacity = '0';
+    loginScreen.style.pointerEvents = 'none';
+    setTimeout(() => loginScreen.style.display = 'none', 500);
+
+    const gameScreen = document.getElementById('game-screen');
+    gameScreen.classList.remove('hidden');
+    gameScreen.style.opacity = '0';
+    setTimeout(() => gameScreen.style.opacity = '1', 50);
+}
+
+async function handleAuthSubmit(event) {
+    event.preventDefault();
+    const username = document.getElementById('username-input').value.trim();
+    const password = document.getElementById('password-input').value;
+    const remember = document.getElementById('remember-me').checked;
+    const errorEl = document.getElementById('auth-error');
+    const btnLogin = document.getElementById('btn-login');
+
+    errorEl.classList.add('hidden');
+    btnLogin.textContent = 'Đang đăng nhập...';
+    btnLogin.disabled = true;
+
+    try {
+        const cloudData = await cloudLogin(username, password);
+        if (remember) saveSession(username);
+        await initGame(cloudData);
+        hideLoginScreen();
+    } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+        btnLogin.textContent = 'Đăng nhập';
+        btnLogin.disabled = false;
+    }
+}
+
+async function handleAuthRegister() {
+    const username = document.getElementById('username-input').value.trim();
+    const password = document.getElementById('password-input').value;
+    const remember = document.getElementById('remember-me').checked;
+    const errorEl = document.getElementById('auth-error');
+    const btnRegister = document.getElementById('btn-register');
+
+    errorEl.classList.add('hidden');
+    btnRegister.textContent = 'Đang tạo...';
+    btnRegister.disabled = true;
+
+    try {
+        await cloudRegister(username, password);
+        if (remember) saveSession(username);
+        await initGame(null); // null = fresh state
+        hideLoginScreen();
+    } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+        btnRegister.textContent = 'Đăng ký';
+        btnRegister.disabled = false;
+    }
+}
+
+async function playOffline() {
+    await initGame(null);
+    hideLoginScreen();
+}
+
+// ============================================================
+// CLOUD SYNC — Only fires on tab hide / tab close
+// ============================================================
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && currentUser) {
+        cloudSync(gameState);
+    }
+});
+
+window.addEventListener('beforeunload', () => {
+    if (currentUser) cloudSync(gameState);
+});
+
+// ============================================================
+// DATA LOADING
+// ============================================================
 async function loadAlbumsData() {
     try {
         const response = await fetch(`images.json?t=${Date.now()}`);
@@ -25,9 +130,18 @@ async function loadAlbumsData() {
     }
 }
 
-async function initGame() {
+// ============================================================
+// GAME INIT
+// ============================================================
+async function initGame(cloudData) {
     await loadAlbumsData();
-    loadGame();
+
+    // If cloudData exists (returning user), restore it; otherwise load local save
+    if (cloudData) {
+        Object.assign(gameState, cloudData);
+    } else {
+        loadGame();
+    }
     
     ['click', 'dps', 'economy', 'skill'].forEach(type => {
         if (!gameState.upgrades[type]) {
@@ -63,12 +177,16 @@ async function initGame() {
     document.getElementById('zoom-popup').style.display = 'none';
     const equipModal = document.getElementById('equip-skill-modal');
     if (equipModal) equipModal.style.display = 'none';
-    
-    document.getElementById('game-screen').style.display = 'flex';
-    
+
     document.addEventListener('keydown', handleKeyPress);
+
+    showSubTab('click-upgrades');
+    showTab('upgrade');
 }
 
+// ============================================================
+// GAMEPLAY ACTIONS
+// ============================================================
 function buyUpgrade(id) {
     const upgradeData = findUpgradeData(id);
     if (!upgradeData) return;
@@ -214,6 +332,7 @@ document.getElementById('pause-button').addEventListener('click', () => {
      else resumeGame();
 });
 
-showSubTab('click-upgrades');
-showTab('upgrade');
-initGame();
+// ============================================================
+// BOOTSTRAP
+// ============================================================
+startApp();

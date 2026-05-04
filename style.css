@@ -1,10 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;600;800&display=swap');
 
 body {
-    background-color: #0d1117;
+    background-color: #05000a;
     color: #ffffff;
     overflow: hidden;
     user-select: none;
+}
+
+/* Motion Background */
+.motion-bg {
+    background-image: url('images/bg.png');
+    background-size: cover;
+    background-position: center;
+    animation: slowMotionBg 40s ease-in-out infinite alternate;
+}
+
+@keyframes slowMotionBg {
+    0%   { transform: scale(1.0) translate(0%, 0%); }
+    33%  { transform: scale(1.08) translate(-1.5%, 1%); }
+    66%  { transform: scale(1.05) translate(1%, -1%); }
+    100% { transform: scale(1.1) translate(-2%, 2%); }
+}
+
+/* Login Input */
+.glass-input {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+}
+.glass-input::placeholder { color: rgba(156, 163, 175, 0.6); }
+.glass-input:focus {
+    outline: none;
+    border-color: rgba(217, 70, 239, 0.6);
+    box-shadow: 0 0 15px rgba(217, 70, 239, 0.2);
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Login Screen transition */
+#login-screen {
+    transition: opacity 0.5s ease;
 }
 
 /* Glassmorphism Utilities */
